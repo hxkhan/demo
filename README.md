@@ -17,11 +17,10 @@ Our main UN sustainability goal is nr 16. Direct democracy can promote transpare
 
 ### Directories
 1. Model code (business logic) goes into `src/main/java/agile18/demo/model`
-2. Web interface controllers go into `src/main/java/agile18/demo/web`
+2. REST API controllers go into `src/main/java/agile18/demo/web`
     - Remember, there should be no business logic in here
-    - In theory, it should be as if we can replace the web interface with a console one without much effort
-3. Static HTML/CSS/JS go into `src/main/resources/static`
-4. Dynamic HTML thymeleaf templates go into `src/main/resources/templates`
+    - It should be as if we can replace the web interface with a console one without muche effort and without any changes in the model whatsoever
+3. Frontend (HTML/CSS/JS) go into `src/main/resources/static`
 
 ### Specific files
 1. Complete DB Schema is available at `src/main/resources/schema.sql`

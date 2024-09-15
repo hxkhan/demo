@@ -1,5 +1,7 @@
 package agile18.demo.web;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,12 +24,9 @@ public class OnboardingController {
 
     // Just for funsies
     @GetMapping("/users")
-    public String onGetUser(/* @RequestParam String user */) {
+    public List<User> onGetUser(/* @RequestParam String user */) {
         var citizens = db.getAllCitizens();
-        String total = "";
-        for (User user : citizens) {
-            total += "Name: " + user.name() + " & id: " + user.id() + "<br>";
-        }
-        return total;
+
+        return citizens;
     }
 }
