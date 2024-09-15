@@ -23,36 +23,21 @@ public class Onboarder {
     private final JdbcTemplate jdbc;
     // map UUID -> personNr for login access tokens
     private static HashMap<UUID, String> logins = new HashMap<UUID, String>();
+    private final Database db;
 
-    public Onboarder(JdbcTemplate jdbcTemplate) {
+    public Onboarder(JdbcTemplate jdbcTemplate, Database db) {
         this.jdbc = jdbcTemplate;
+        this.db = db;
     }
 
     public User checkLogin(UUID id) throws NotLoggedInException {
         if (!logins.containsKey(id)) throw new NotLoggedInException();
         String personNr = logins.get(id); 
-        return getUserWithPersonNumber(personNr);
-    }
-
-    public User getUserWithPersonNumber(String id) {
-        String sql = "SELECT 1 FROM Citizens WHERE id = '" + id + "'';";
-
-        // might work idk
-        return jdbc.queryForObject(sql, User.class);
+        return db.getUserWithPersonNumber(personNr);
     }
 
     // remove later; only exists to show the functionality
     public List<User> getAllCitizens() {
-        String sql = "SELECT * FROM Citizens;";
-        
-        // Query for a list of rows
-        List<User> entities = jdbc.query(sql, (rs, rowNum) -> {
-            User entity = new User(rs.getString("id"), rs.getString("name"));
-            return entity;
-        });
-
-        return entities;
-        // Execute an update example
-        //jdbcTemplate.update("INSERT INTO Citizens VALUES (?)", "New Name");
+        return db.getAllCitizens();
     }
 }
