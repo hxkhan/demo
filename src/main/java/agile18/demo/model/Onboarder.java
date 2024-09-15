@@ -35,7 +35,7 @@ public class Onboarder {
     }
 
     public User getUserWithPersonNumber(String id) {
-        String sql = "SELECT 1 FROM Citizens WHERE id = " + id + ";";
+        String sql = "SELECT 1 FROM Citizens WHERE id = '" + id + "'';";
 
         // might work idk
         return jdbc.queryForObject(sql, User.class);
