@@ -3,18 +3,17 @@ package agile18.demo.web;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import agile18.demo.model.Database;
+import agile18.demo.model.Onboarder;
 import agile18.demo.model.User;
 
 @RestController
 public class OnboardingController {
-    private final Database db;
+    private final Onboarder onboarding;
 
-    public OnboardingController(Database db) {
-        this.db = db;
+    public OnboardingController(Onboarder ob) {
+        this.onboarding = ob;
     }
 
     @GetMapping("/")
@@ -24,9 +23,8 @@ public class OnboardingController {
 
     // Just for funsies
     @GetMapping("/users")
-    public List<User> onGetUser(/* @RequestParam String user */) {
-        var citizens = db.getAllCitizens();
-
+    public List<User> onGetUser() {
+        var citizens = onboarding.getAllCitizens();
         return citizens;
     }
 }

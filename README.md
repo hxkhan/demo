@@ -23,10 +23,11 @@ Our main UN sustainability goal is nr 16. Direct democracy can promote transpare
 3. Frontend (HTML/CSS/JS) go into `src/main/resources/static`
 
 ### Specific files
-1. Complete DB Schema is available at `src/main/resources/schema.sql`
+1. Login/Registration REST API code goes into `src/main/java/agile18/demo/web/OnboardingController.java`
+2. Complete DB Schema is available at `src/main/resources/schema.sql`
     - This schema does not automatically run by itself on startup (for obvious reasons including the fact that the DB is persistent between different runs)
     - That means it has to be manually run in the Admin panel of the database, but only when the schema has *changed* - more on that below
-2. Database access code goes into `src/main/java/agile18/demo/model/Database.java`
+3. Login/Registration model code goes into `src/main/java/agile18/demo/model/Onboarder.java`
 
 ### Access the DB Admin panel
 1. Run the application
