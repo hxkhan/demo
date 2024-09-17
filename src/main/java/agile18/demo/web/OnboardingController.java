@@ -1,12 +1,15 @@
 package agile18.demo.web;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import agile18.demo.model.Onboarder;
-import agile18.demo.model.User;
+import agile18.demo.model.Exceptions.*;
+import agile18.demo.model.Citizen;
+import io.micrometer.common.util.StringUtils;
 
 @RestController
 public class OnboardingController {
@@ -21,10 +24,73 @@ public class OnboardingController {
         return "Hello World";
     }
 
-    // Just for funsies
-    @GetMapping("/users")
-    public List<User> onGetUser() {
-        var citizens = onboarding.getAllCitizens();
-        return citizens;
+    @PostMapping("/login")
+    public Map<String, Object> onLoginUser(@RequestBody BodyOfLoginUser body) {
+        if (!body.isValid()) {
+            return Map.of(
+                "success", false,
+                "message", "invalid request body"
+            );
+        }
+
+        try {
+            UUID uuid = onboarding.login(body.id(), body.password());
+            return Map.of(
+                "success", true,
+                "uuid", uuid.toString()
+            );
+        } catch (CitizenDoesNotExistException e) {
+            return Map.of(
+                "success", false,
+                "message", "user does not exist"
+            );
+        } catch (IncorrectPasswordException e) {
+            return Map.of(
+                "success", false,
+                "message", "incorrect password"
+            );
+        }
+    }
+
+    @PostMapping("/register")
+    public Map<String, Object> onRegisterUser(@RequestBody BodyOfRegisterUser body) {
+        if (!body.isValid()) {
+            return Map.of(
+                "success", false,
+                "message", "invalid request body"
+            );
+        }
+
+        try {
+            UUID uuid = onboarding.register(body.name(), body.id(), body.password());
+            return Map.of(
+                "success", true,
+                "uuid", uuid.toString()
+            );
+        } catch (CitizenExistsException e) {
+            return Map.of(
+                "success", false,
+                "message", "user already exists"
+            );
+        }
+    }
+
+    // exists for debugging purposes
+    @GetMapping("/citizens")
+    public List<Citizen> onGetUser() {
+        return onboarding.getAllCitizens();
+    }
+}
+
+
+record BodyOfRegisterUser(String name, String id, String password) {
+    boolean isValid() {
+        return !StringUtils.isEmpty(name) && id.length() == 10 && !StringUtils.isEmpty(password);
+    }
+}
+
+record BodyOfLoginUser(String id, String password) {
+    boolean isValid() {
+        return id.length() == 10 && !StringUtils.isEmpty(password);
     }
 }

@@ -3,8 +3,6 @@ DROP TABLE IF EXISTS Citizens;
 
 -- INIT
 
--- Users table
-
 CREATE TABLE Citizens (
     id CHAR(10) PRIMARY KEY,
     name TEXT NOT NULL,

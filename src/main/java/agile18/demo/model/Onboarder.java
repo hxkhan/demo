@@ -1,64 +1,63 @@
 package agile18.demo.model;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-
 import agile18.demo.model.Exceptions.*;
 
 import java.util.*;
 
-/* rough api of this class for now
-interface {
-    UUID register(name, personNr, password)
-        will attempt to register with the info and do the same as login
-    UUID login(personNr, password)
-        will attempt to login with the credentials and generate a UUID which is saved as logins[UUID] = personNr
-    User checkLogin(UUID)
-        checks if the UUID is assigned a user and if yes then return the user else throw exception
-}
-*/
-
 @Service
 public class Onboarder {
-    private final JdbcTemplate jdbc;
-    // map UUID -> personNr for login access tokens
-    private static HashMap<UUID, String> logins = new HashMap<UUID, String>();
     private final Database db;
+    // map UUID -> personNr for login access tokens
+    private HashMap<UUID, String> logins = new HashMap<UUID, String>();
 
-    public Onboarder(JdbcTemplate jdbcTemplate, Database db) {
-        this.jdbc = jdbcTemplate;
+    public Onboarder(Database db) {
         this.db = db;
-
-        /*
-        try {
-            System.out.println(db.getUserWithPersonNumber("0101010212"));
-
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        try {
-            this.db.createCitizen("Hej","0101010212","ewewe");
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-    
-        try {
-            System.out.println(db.loginUser("0101010212", "ewewe"));
-
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        */
     }
 
-    public User checkLogin(UUID id) throws NotLoggedInException, AccountDoesNotExistException {
-        if (!logins.containsKey(id)) throw new NotLoggedInException();
-        String personNr = logins.get(id); 
-        return db.getUserWithPersonNumber(personNr);
+    public UUID register(String name, String id, String pass) throws CitizenExistsException {
+        try {
+            db.createCitizen(name, id, pass);
+
+            UUID uuid = java.util.UUID.randomUUID();
+            logins.put(uuid, id);
+            return uuid;
+
+        } catch (CitizenExistsException e) {
+            throw e;
+        }
+    }
+
+    public UUID login(String id, String password) throws CitizenDoesNotExistException, IncorrectPasswordException {
+        try {
+            Citizen user = db.getCitizenWithPersonNumber(id);
+            if (!user.pass().equals(password)) throw new IncorrectPasswordException();
+
+            UUID uuid = java.util.UUID.randomUUID();
+            logins.put(uuid, id);
+            return uuid;
+        } catch (CitizenDoesNotExistException e) {
+            throw e;
+        }
+    }
+
+    public Citizen checkLogin(UUID uuid) throws NotLoggedInException {
+        if (!logins.containsKey(uuid)) throw new NotLoggedInException();
+        String id = logins.get(uuid); 
+
+        try {
+            return db.getCitizenWithPersonNumber(id);
+        } catch (CitizenDoesNotExistException e) {
+            throw new RuntimeException("Citizen went extinct from Database after login, what are we even doing?");
+        }
+    }
+
+    public Citizen getCitizenWithPersonNumber(String id) throws CitizenDoesNotExistException {
+        return db.getCitizenWithPersonNumber(id);
     }
 
     // remove later; only exists to show the functionality
-    public List<User> getAllCitizens() {
+    public List<Citizen> getAllCitizens() {
         return db.getAllCitizens();
     }
 }
