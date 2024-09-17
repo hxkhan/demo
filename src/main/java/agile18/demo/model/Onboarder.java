@@ -28,9 +28,30 @@ public class Onboarder {
     public Onboarder(JdbcTemplate jdbcTemplate, Database db) {
         this.jdbc = jdbcTemplate;
         this.db = db;
+
+        /*
+        try {
+            System.out.println(db.getUserWithPersonNumber("0101010212"));
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        try {
+            this.db.createCitizen("Hej","0101010212","ewewe");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    
+        try {
+            System.out.println(db.loginUser("0101010212", "ewewe"));
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        */
     }
 
-    public User checkLogin(UUID id) throws NotLoggedInException {
+    public User checkLogin(UUID id) throws NotLoggedInException, AccountDoesNotExistException {
         if (!logins.containsKey(id)) throw new NotLoggedInException();
         String personNr = logins.get(id); 
         return db.getUserWithPersonNumber(personNr);
