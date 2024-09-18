@@ -52,6 +52,7 @@ public class Onboarder {
         }
     }
 
+    // also for debug purposes for now
     public Citizen getCitizenWithPersonNumber(String id) throws CitizenDoesNotExistException {
         return db.getCitizenWithPersonNumber(id);
     }

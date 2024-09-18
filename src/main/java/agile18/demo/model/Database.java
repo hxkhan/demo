@@ -1,6 +1,6 @@
 package agile18.demo.model;
 
-import org.springframework.dao.EmptyResultDataAccessException;
+//import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,23 +18,20 @@ public class Database {
 
     public Citizen getCitizenWithPersonNumber(String id) throws CitizenDoesNotExistException {
         String sql = "SELECT * FROM Citizens WHERE id = '" + id + "';";
-
-        try {
-            return jdbc.queryForObject(sql, (rs, rowNum) -> {
-                return new Citizen(rs.getString("id"), rs.getString("name"), rs.getString("pass"));
-            });
-        } catch (EmptyResultDataAccessException e) {
+        List<Map<String, Object>> result = jdbc.queryForList(sql);
+        if (result.isEmpty()) {
             throw new CitizenDoesNotExistException();
         }
+        Citizen user = new Citizen(
+                result.get(0).get("id").toString(),
+                result.get(0).get("name").toString(),
+                result.get(0).get("pass").toString());
+        return user;
     }
 
     public boolean ifCitizenExists(String id) {
-        try {
-            getCitizenWithPersonNumber(id);
-            return true;
-        } catch (CitizenDoesNotExistException e) {
-            return false;
-        }
+        String sql = "SELECT 1 FROM Citizens WHERE id = '" + id + "';";
+        return !jdbc.queryForList(sql).isEmpty();
     }
 
     public List<Citizen> getAllCitizens() {
@@ -57,10 +54,12 @@ public class Database {
     }
 
     // Not used anymore -------------------------------------------------------
-    /* public User getUserWithPersonNumberX(String id) {
-        String sql = "SELECT 1 FROM Citizens WHERE id = '" + id + "';";
-        // might work idk
-        User me = new User("hej", "då");
-        return me;// jdbc.queryForObject(sql, User.class);
-    } */
+    /*
+     * public User getUserWithPersonNumberX(String id) {
+     * String sql = "SELECT 1 FROM Citizens WHERE id = '" + id + "';";
+     * // might work idk
+     * User me = new User("hej", "då");
+     * return me;// jdbc.queryForObject(sql, User.class);
+     * }
+     */
 }

@@ -38,7 +38,7 @@ Our main UN sustainability goal is nr 16. Direct democracy can promote transpare
 6. You're free to execute any SQL you want
 7. Also leave the `Users` table alone, thats for the DB itself and not ours
 
-### Rest API Testing
+## Rest API Testing
 
 Register a user
 ```
@@ -68,3 +68,6 @@ Get all users
 curl --request GET \
   --url http://localhost:8080/citizens
 ```
+
+## Response
+Register and Login are supposed to return a json with a key `success` that is either `true` or `false`. If it is `false` then there is also a `message` key present that provides context on why. If it is `true` then we know what should be present, for login and register `success: true` means a key `uuid` will be present. This is the access token for further requests.
