@@ -37,3 +37,34 @@ Our main UN sustainability goal is nr 16. Direct democracy can promote transpare
 5. Click connect
 6. You're free to execute any SQL you want
 7. Also leave the `Users` table alone, thats for the DB itself and not ours
+
+### Rest API Testing
+
+Register a user
+```
+curl --request POST \
+  --url http://localhost:8080/register \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "name": "John Doe",
+  "id": "0305250000",
+  "password": "123"
+}'
+```
+
+Login a user
+```
+curl --request POST \
+  --url http://localhost:8080/login \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "id": "0305250000",
+  "password": "123"
+}'
+```
+
+Get all users
+```
+curl --request GET \
+  --url http://localhost:8080/citizens
+```

@@ -48,7 +48,7 @@ public class Onboarder {
         try {
             return db.getCitizenWithPersonNumber(id);
         } catch (CitizenDoesNotExistException e) {
-            throw new RuntimeException("Citizen went extinct from Database after login, what are we even doing?");
+            throw new RuntimeException("Citizen went extinct from database after login, what are we even doing?");
         }
     }
 
