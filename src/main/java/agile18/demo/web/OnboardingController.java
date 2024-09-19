@@ -11,6 +11,7 @@ import agile18.demo.model.Exceptions.*;
 import agile18.demo.model.Citizen;
 import io.micrometer.common.util.StringUtils;
 
+// Controller for onboarding processes of users, both new and for login of aalready existing users
 @RestController
 public class OnboardingController {
     private final Onboarder onboarding;
@@ -24,6 +25,7 @@ public class OnboardingController {
         return "Hello World";
     }
 
+    //Used for sent form data for login to backend
     @PostMapping("/login")
     public Map<String, Object> onLoginUser(@RequestBody BodyOfLoginUser body) {
         if (!body.isValid()) {
@@ -52,6 +54,7 @@ public class OnboardingController {
         }
     }
 
+    //Used for sent form data for register to backend
     @PostMapping("/register")
     public Map<String, Object> onRegisterUser(@RequestBody BodyOfRegisterUser body) {
         if (!body.isValid()) {
@@ -81,7 +84,6 @@ public class OnboardingController {
         return onboarding.getAllCitizens();
     }
 }
-
 
 record BodyOfRegisterUser(String name, String id, String password) {
     boolean isValid() {
