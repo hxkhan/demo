@@ -1,21 +1,13 @@
 -- TO RESET EVERYTHING
-DROP TABLE IF EXISTS RefResult;
+DROP TABLE IF EXISTS RefResults;
 DROP TABLE IF EXISTS RefRoll;
 DROP TABLE IF EXISTS Referendum;
-DROP TABLE IF EXISTS Area;
 DROP TABLE IF EXISTS Citizens;
+DROP TABLE IF EXISTS Municipality;
+DROP TABLE IF EXISTS Area;
 
 
 -- INIT
-
-CREATE TABLE Citizens (
-    id CHAR(10) PRIMARY KEY,
-    name TEXT NOT NULL,
-    pass TEXT NOT NULL,
-    CHECK (id ~ '^\d+?$')
-);
-
--- area of concern
 CREATE TABLE Area (
     name TEXT PRIMARY KEY,
     level TEXT NOT NULL,
@@ -25,7 +17,15 @@ CREATE TABLE Area (
 );
 
 CREATE TABLE Municipality (
-    name TEXT REFERENCES Area(name)
+    name TEXT PRIMARY KEY REFERENCES Area(name)
+);
+
+CREATE TABLE Citizens (
+    id CHAR(10) PRIMARY KEY,
+    name TEXT NOT NULL,
+    pass TEXT NOT NULL,
+    home TEXT REFERENCES Municipality(name),
+    CHECK (id ~ '^\d+?$')
 );
 
 
@@ -53,9 +53,3 @@ CREATE TABLE RefRoll (
 
     PRIMARY KEY (citizen, referendum)
 );
-
-
--- Mock data for us
-INSERT INTO Citizens VALUES ('0305251111', 'Hassan Khan','hejsan123');
-INSERT INTO Citizens VALUES ('0311261111', 'David Golebiak', 'tjabatjena');
-INSERT INTO Citizens VALUES ('9603291111', 'Sebastian Kolbel', 'hejhallo');
