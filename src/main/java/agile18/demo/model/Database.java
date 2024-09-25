@@ -52,7 +52,12 @@ public class Database {
         jdbc.execute(sql);
     }
 
-// --------------------- Referendum ---------------------
+    // --------------------- Referendum ---------------------
+
+    /** 
+     * Creates an unique referendum id by incrementing the highest existing id.
+     * @return an unique referendum id that can be used for new referendums.
+     */
     public String getUniqueRefId(){
         String sql = 
             """
@@ -69,10 +74,25 @@ public class Database {
         System.out.println(result.get(0).get("id").toString());
         return ""+(Integer.parseInt(res_str)+1);
     }
+
+    /** 
+     * Checks if given referendum id exists.
+     * @param id - Id for citizen.
+     * @return true if referendum exists, false otherwise.
+     */
     public boolean referendumExists(String id){
         String sql = "SELECT 1 FROM Referendum WHERE id = " + id + ";";
         return !jdbc.queryForList(sql).isEmpty();
     }
+    /** 
+     * Tries to create a referendum in the database using input parameters.
+     * @param id - Id for citizen.
+     * @param area - Area affected by referendum.
+     * @param title - Title of referendum.
+     * @param body - Text explanation for referendum.
+     * @param startDate - Start date of referendum.
+     * @param endDate - End date of referendum.
+     */
     public void createReferendum(String id, String area, String title, String body, String startDate, String endDate) throws ReferendumExistsException {
         if (referendumExists(id)) {
             throw new ReferendumExistsException();
@@ -169,6 +189,7 @@ public class Database {
                 "AND referendum = " + referendumId + ";";
         return !jdbc.queryForList(sql).isEmpty();
     }
+    
     public int[] getReferendumResult(String referendumId) throws ReferendumNotFoundException {
         String sql = "SELECT * FROM RefResults WHERE referendum = " + referendumId + ";";
         List<Map<String, Object>> results = jdbc.queryForList(sql);
