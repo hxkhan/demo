@@ -66,18 +66,19 @@ public class Database {
             return "0";
         }
         String res_str = result.get(0).get("id").toString();
+        System.out.println(result.get(0).get("id").toString());
         return ""+(Integer.parseInt(res_str)+1);
     }
     public boolean referendumExists(String id){
-        String sql = "SELECT 1 FROM Referendum WHERE id = '" + id + "';";
+        String sql = "SELECT 1 FROM Referendum WHERE id = " + id + ";";
         return !jdbc.queryForList(sql).isEmpty();
     }
     public void createReferendum(String id, String area, String title, String body, String startDate, String endDate) throws ReferendumExistsException {
         if (referendumExists(id)) {
             throw new ReferendumExistsException();
         }
-        String sql = "INSERT INTO Referendum VALUES ('" 
-            + id + "', '" 
+        String sql = "INSERT INTO Referendum VALUES ("
+            + id + ", '"
             + area + "', '" 
             + title + "', '" 
             + body + "', '" 
@@ -93,9 +94,9 @@ public class Database {
      */
     public boolean referendumOpen(String id){
         String sql = "SELECT 1 FROM Referendum " +
-                "WHERE id = '" + id + "'" +
-                "AND CURRENT_DATE >= startDate\n" +
-                "AND CURRENT_DATE <= endDate;";
+                "WHERE id = " + id +
+                " AND CURRENT_DATE >= startDate\n" +
+                " AND CURRENT_DATE <= endDate;";
         return !jdbc.queryForList(sql).isEmpty();
     }
 
@@ -115,20 +116,20 @@ public class Database {
         if (vote == VoteEnum.FAVOR) {
             sql = "UPDATE RefResults \n" +
                     "SET favor = favor + 1 \n" +
-                    "WHERE referendum = '" + referendumId +"';";
+                    "WHERE referendum = " + referendumId +";";
             jdbc.update(sql);
         }
         if (vote == VoteEnum.AGAINST) {
             sql = "UPDATE RefResults \n" +
                     "SET against = against + 1 \n" +
-                    "WHERE referendum = '" + referendumId +"';";
+                    "WHERE referendum = " + referendumId +";";
             jdbc.update(sql);
 
         }
         if (vote == VoteEnum.BLANK) {
             sql = "UPDATE RefResults \n" +
                     "SET blank = blank + 1 \n" +
-                    "WHERE referendum = '" + referendumId +"';";
+                    "WHERE referendum = " + referendumId +";";
             jdbc.update(sql);
         }
 
@@ -144,15 +145,15 @@ public class Database {
         String sql = "\n" +
                 "SELECT * FROM Citizens JOIN\n" +
                 "(SELECT name FROM Area JOIN Referendum ON Area.name = Referendum.area\n" +
-                "WHERE Referendum.id = '"+ referendumId +"'\n" +
+                "WHERE Referendum.id = " + referendumId +"\n" +
                 "UNION\n" +
                 "SELECT name FROM Area JOIN Referendum ON Area.partof = Referendum.area\n" +
-                "WHERE Referendum.id = '" + referendumId + "')\n" +
+                "WHERE Referendum.id = " + referendumId + ")\n" +
                 "AS Valid\n" +
                 "WHERE Citizens.home = Valid.name\n" +
                 "AND Citizens.id NOT IN\n" +
                 "(Select citizen FROM RefRoll\n" +
-                "WHERE referendum = '" + referendumId + "') \n" +
+                "WHERE referendum = " + referendumId + ") \n" +
                 "AND Citizens.id = '" + citizenId + "';";
         return !jdbc.queryForList(sql).isEmpty();
     }
@@ -165,10 +166,23 @@ public class Database {
     public boolean hasCitizenVoted(String citizenId, String referendumId){
         String sql = "SELECT 1 FROM RefRoll \n" +
                 "WHERE citizen = '" + citizenId + "' \n" +
-                "AND referendum = '" + referendumId + "';";
+                "AND referendum = " + referendumId + ";";
         return !jdbc.queryForList(sql).isEmpty();
     }
+    public int[] getReferendumResult(String referendumId) throws ReferendumNotFoundException {
+        String sql = "SELECT * FROM RefResults WHERE referendum = " + referendumId + ";";
+        List<Map<String, Object>> results = jdbc.queryForList(sql);
+        if (results.isEmpty()) {
+            throw new ReferendumNotFoundException();
+        }
 
+        int[] Arr =  new int[3];
+        Arr[0] = (int)results.get(0).get("blank");
+        Arr[1] = (int)results.get(0).get("favor");
+        Arr[2] = (int)results.get(0).get("against");
+
+        return Arr;
+    }
 
     // --------------------- TEST ---------------------
     public void testReferendum(){
@@ -178,8 +192,11 @@ public class Database {
         String endDate = "2024-09-30";
         try {
             createReferendum(id, "Göteborg", "Ny skola", "Vi behöver..", now, endDate);
+            int[] res = getReferendumResult("1");
+            System.out.println(res[0] + " " + res[1] + " " + res[2]);
         } catch (Exception e) {
             System.out.println(e);
         }
+
     }
 }

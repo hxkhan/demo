@@ -30,7 +30,7 @@ CREATE TABLE Citizens (
 
 
 CREATE TABLE Referendum (
-    id TEXT PRIMARY KEY,
+    id INT PRIMARY KEY,
     area TEXT NOT NULL REFERENCES Area(name),
     title TEXT NOT NULL,
     body TEXT NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE Referendum (
 );
 
 CREATE TABLE RefResults (
-    referendum TEXT PRIMARY KEY REFERENCES Referendum(id),
+    referendum INT PRIMARY KEY REFERENCES Referendum(id),
     blank INT NOT NULL CHECK (blank >= 0),
     favor INT NOT NULL CHECK (favor >= 0),
     against INT NOT NULL CHECK (against >= 0)
@@ -49,7 +49,7 @@ CREATE TABLE RefResults (
 
 CREATE TABLE RefRoll (
     citizen CHAR(10) REFERENCES Citizens(id),
-    referendum TEXT REFERENCES Referendum(id),
+    referendum INT REFERENCES Referendum(id),
 
     PRIMARY KEY (citizen, referendum)
 );
