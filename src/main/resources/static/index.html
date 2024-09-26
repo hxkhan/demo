@@ -67,32 +67,6 @@
         <p>Our main UN sustainability goal is nr 16. Direct democracy can promote transparency and helps fight
             corruption. It also empowers local communities to protect their interests!</p>
     </div>
-
-    <script>
-        function Login({ id, pass }) {
-            fetch("login", {
-                method: "POST",
-                body: JSON.stringify({
-                    name: name,
-                    password: pass
-                }),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            }).then((response) => response.json()).then((data) => {
-                if (data.success == false) {
-                    document.getElementById("errorMessageBox").style.display = 'block';
-                    document.getElementById("errorMessage").innerHTML = data.message;
-                    return;
-                }
-
-                localStorage.setItem("uuid", data.uuid);
-                localStorage.setItem("user", JSON.stringify(data.data));
-                localStorage.initial = "YESSIR!";
-                window.location.replace("/portfolio.html");
-            });
-        }
-    </script>
 </body>
 
 </html>
