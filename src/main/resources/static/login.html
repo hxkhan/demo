@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Democracy Now</title>
+    <title>Democracy Now - Login</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -32,40 +32,37 @@
     <header class="rubik">
         <div class="inner">
             <a class="header-title" href="/">Democracy Now</a>
-            <div class="desktop-header-links">
-                <a class="header-link" href="login.html">Login</a>
-                <a class="header-link header-link2" href="register.html">Register</a>
-            </div>
-            <div class="dropdown text-end mobile-header-nav">
-                <a href="#" class="d-block link-body-emphasis text-decoration-none" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    <svg id="burger-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#FFFFFF"
-                        class="bi bi-list" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
-                    </svg>
-                </a>
-                <ul class="dropdown-menu text-small">
-                    <li class="dropdown-item-mobile"><a class="dropdown-item" href="login.html">Login</a></li>
-                    <li class="dropdown-item-mobile"><a class="dropdown-item" href="register.html">Register</a></li>
-
-                </ul>
-            </div>
+            <a class="header-link" href="register.html">Register</a>
         </div>
     </header>
 
-    <div class="mission-box rubik rounded-box-shadow">
-        <h2 class="mb-3">Our Mission</h2>
-        <p>Democracy now is a direct democracy platform that allows individuals to propose and vote on new ideas for
-            legislation on both the local and national level. In Sweden this would be the municipal, regional and
-            national
-            levels.</p>
+    <div class="logreg-box rubik rounded-box-shadow">
+        <div id="errorMessageBox" style="display: none;" class="alert alert-danger alert-dismissible mb-4" role="alert">
+            <div id="errorMessage"></div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
-        <p>Our website will allow users to log in and browse various referendums and if eligible, also vote. A news feed
-            detailing things like which referendums have passed will also be available.</p>
+        <h2 class="mb-2">Login</h2>
+        <form x-data="{ id:'', pass:'' }" onSubmit="return false;">
+            <!-- ID num input -->
+            <label class="form-label">Personal Identity Number</label>
+            <div class="form-group mb-4">
+                <input type="text" name="id" x-model="id" class="form-control" placeholder="YYMMDDXXXX" required>
+            </div>
 
-        <p>Our main UN sustainability goal is nr 16. Direct democracy can promote transparency and helps fight
-            corruption. It also empowers local communities to protect their interests!</p>
+            <!-- Password input -->
+            <label class="form-label" required>Password</label>
+            <div class="input-group mb-4">
+                <input type="password" name="password" x-model="pass" class="form-control" placeholder="Password"
+                    required>
+            </div>
+
+            <!-- Submit button -->
+            <div class="d-grid mt-4">
+                <button type="submit" @click="Login($data);" class="btn btn-primary"
+                    :disabled="id.length != 10 || pass == '' ">Login</button>
+            </div>
+        </form>
     </div>
 
     <script>
