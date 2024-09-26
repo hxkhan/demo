@@ -18,7 +18,8 @@
 
     <!-- Navigation Script -->
     <script type="module">
-        if (localStorage.uuid && localStorage.user) window.location.replace("/something.html");
+        if (localStorage.uuid) window.alert("You are logged in!");
+        //window.location.replace("/something.html");
     </script>
 
     <!-- Alpine JavaScript -->
@@ -39,7 +40,7 @@
     <div class="logreg-box rubik rounded-box-shadow">
         <div id="errorMessageBox" style="display: none;" class="alert alert-danger alert-dismissible mb-4" role="alert">
             <div id="errorMessage"></div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" onclick="hideError();" aria-label="Close"></button>
         </div>
 
         <h2 class="mb-2">Login</h2>
@@ -70,7 +71,7 @@
             fetch("login", {
                 method: "POST",
                 body: JSON.stringify({
-                    name: name,
+                    id: id,
                     password: pass
                 }),
                 headers: {
@@ -79,15 +80,23 @@
             }).then((response) => response.json()).then((data) => {
                 if (data.success == false) {
                     document.getElementById("errorMessageBox").style.display = 'block';
-                    document.getElementById("errorMessage").innerHTML = data.message;
+                    if (data.message == "user does not exist")
+                        document.getElementById("errorMessage").innerHTML = "No citizen with the specified identity number exists!";
+                    else if (data.message == "incorrect password")
+                        document.getElementById("errorMessage").innerHTML = "The specified password is incorrect!";
                     return;
                 }
 
                 localStorage.setItem("uuid", data.uuid);
-                localStorage.setItem("user", JSON.stringify(data.data));
-                localStorage.initial = "YESSIR!";
-                window.location.replace("/portfolio.html");
+                //localStorage.setItem("user", JSON.stringify(data.data));
+                //localStorage.initial = "YESSIR!";
+                //window.location.replace("/something.html");
+                window.alert("You are logged in with id: " + data.uuid)
             });
+        }
+
+        function hideError() {
+            document.getElementById("errorMessageBox").style.display = 'none';
         }
     </script>
 </body>
