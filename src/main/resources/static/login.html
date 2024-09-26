@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Democracy Now - Login</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <!-- Navigation Script -->
+    <script type="module">
+        if (localStorage.uuid) window.alert("You are logged in!");
+        //window.location.replace("/something.html");
+    </script>
+
+    <!-- Alpine JavaScript -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/logreg.css">
+</head>
+
+<body>
+    <header class="rubik">
+        <div class="inner">
+            <a class="header-title" href="/">Democracy Now</a>
+            <a class="header-link" href="register.html">Register</a>
+        </div>
+    </header>
+
+    <div class="logreg-box rubik rounded-box-shadow">
+        <div id="errorMessageBox" style="display: none;" class="alert alert-danger alert-dismissible mb-4" role="alert">
+            <div id="errorMessage"></div>
+            <button type="button" class="btn-close" onclick="hideError();" aria-label="Close"></button>
+        </div>
+
+        <h2 class="mb-2">Login</h2>
+        <form x-data="{ id:'', pass:'' }" onSubmit="return false;">
+            <!-- ID num input -->
+            <label class="form-label">Personal Identity Number</label>
+            <div class="form-group mb-4">
+                <input type="text" name="id" x-model="id" class="form-control" placeholder="YYMMDDXXXX" required>
+            </div>
+
+            <!-- Password input -->
+            <label class="form-label" required>Password</label>
+            <div class="input-group mb-4">
+                <input type="password" name="password" x-model="pass" class="form-control" placeholder="Password"
+                    required>
+            </div>
+
+            <!-- Submit button -->
+            <div class="d-grid mt-4">
+                <button type="submit" @click="Login($data);" class="btn btn-primary"
+                    :disabled="id.length != 10 || pass == '' ">Login</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function Login({ id, pass }) {
+            fetch("login", {
+                method: "POST",
+                body: JSON.stringify({
+                    id: id,
+                    password: pass
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((response) => response.json()).then((data) => {
+                if (data.success == false) {
+                    document.getElementById("errorMessageBox").style.display = 'block';
+                    if (data.message == "user does not exist")
+                        document.getElementById("errorMessage").innerHTML = "No citizen with the specified identity number exists!";
+                    else if (data.message == "incorrect password")
+                        document.getElementById("errorMessage").innerHTML = "The specified password is incorrect!";
+                    return;
+                }
+
+                localStorage.setItem("uuid", data.uuid);
+                //localStorage.setItem("user", JSON.stringify(data.data));
+                //localStorage.initial = "YESSIR!";
+                //window.location.replace("/something.html");
+                window.alert("You are logged in with id: " + data.uuid)
+            });
+        }
+
+        function hideError() {
+            document.getElementById("errorMessageBox").style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>
