@@ -13,6 +13,8 @@ public class Onboarder {
 
     public Onboarder(Database db) {
         this.db = db;
+        // just for test
+        db.testReferendum();
     }
 
     public UUID register(String name, String id, String pass) throws CitizenExistsException {
