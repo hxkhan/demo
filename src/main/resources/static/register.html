@@ -1,62 +1,163 @@
 <!DOCTYPE html>
-
 <html lang="en">
-<head>
-    <meta  charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register account</title>
-    <link rel="stylesheet" href="styleregisteraccount.css"/>
 
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Democracy Now - Register</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <!-- Navigation Script -->
+    <script type="module">
+        if (localStorage.uuid) window.alert("You are logged in!");
+    </script>
+
+    <!-- Alpine JavaScript -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/logreg.css">
 </head>
 
 <body>
-    <section class="container">
-        <header> Register account </header>
-        <form action="#" class="form">
-        <div class="input-box">
-            <label>Full name</label>
-            <input type="text" placeholder="Enter full name" required/>
+    <header class="rubik">
+        <div class="inner">
+            <a class="header-title" href="/">Democracy Now</a>
+            <a class="header-link" href="login.html">Login</a>
         </div>
-        <div class="input-box">
-            <label>Email address</label>
-            <input type="text" placeholder="Enter e-mail" required/>
-        </div>
-        <div class="input-box">
-            <label>Create password</label>
-            <input type="password" placeholder="Enter password" required/>
-        </div>
-        <div class="column">
-            <div class="input-box">
-                <label>Phone number</label>
-                <input type="text" placeholder="Enter phone number" required/>
-            </div>
-            <div class="input-box">
-                <label>Birth date</label>
-                <input type="date" placeholder="Enter birth date" required>
-            </div>
+    </header>
+
+    <div class="logreg-box rubik rounded-box-shadow">
+        <div id="errorMessageBox" style="display: none;" class="alert alert-danger alert-dismissible mb-4" role="alert">
+            <div id="errorMessage"></div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <div class="gender-box">
-            <h3>Gender</h3>
-            <div class="gender-option">
-                <div class="gender">
-                    <input type="radio" id="check-male" name="gender" class="gender" checked/>
-                    <label for="check-male">Male</label>
-                </div>
-                <div class="gender">
-                    <input type="radio" id="check-female" name="gender" class="gender"/>
-                    <label for="check-female">Female</label>
-                </div>
+        <h2 class="mb-2 title">Register</h2>
+        <form x-data="{ fname:'', lname:'', id:'', pass:'', rpass:'', region:'', muni: '' }"
+            x-init="$watch('region', value => muni = '')" onSubmit="return false;">
+            <label class="form-label">Name</label>
+            <div class="input-group mb-4">
+                <input type="text" name="fname" x-model="fname" class="form-control" placeholder="First name" required>
+                <input type="text" name="lname" x-model="lname" class="form-control" placeholder="Last name" required>
             </div>
-        </div>
 
-        <button>Submit</button>
-        
-    </form>
-    </section>
-    
+            <!-- ID num input -->
+            <div class="form-group mb-4">
+                <label class="form-label">Personal Identity Number</label>
+                <input type="text" name="id" x-model="id" class="form-control" placeholder="YYMMDDXXXX" required>
+            </div>
 
+            <!-- Password input -->
+            <label class="form-label" required>Password</label>
+            <div class="input-group mb-4">
+                <input type="password" name="password" x-model="pass" class="form-control" placeholder="Password"
+                    required>
+                <input type="password" name="password" x-model="rpass" class="form-control"
+                    placeholder="Confirm Password" :class="(pass==rpass) ? '' : 'is-invalid'" required>
+            </div>
+
+            <div class="separator mb-3"></div>
+
+            <!-- Citizen region -->
+            <label class="form-label">Region</label>
+            <select class="form-select mb-3" name="region" x-model="region">
+                <option hidden value="">Choose</option>
+                <option>Blekinge</option>
+                <option>Dalarna</option>
+                <option>Gotland</option>
+                <option>Gävleborg</option>
+                <option>Halland</option>
+                <option>Jämtland Härjedalen</option>
+                <option>Jönköpings län</option>
+                <option>Kalmar län</option>
+                <option>Skåne</option>
+                <option>Stockholms län</option>
+                <option>Sörmland</option>
+                <option>Uppsala län</option>
+                <option>Värmland</option>
+                <option>Västerbotten</option>
+                <option>Västernorrland</option>
+                <option>Västmanland</option>
+                <option>Västra Götaland</option>
+                <option>Örebro län</option>
+                <option>Östergötland</option>
+            </select>
+
+            <!-- Citizen municipality -->
+            <label class="form-label">Municipality</label>
+            <select class="form-select mb-3" name="municipality" x-model="muni" :disabled="region == ''">
+                <option hidden value="">Choose</option>
+                <option :hidden="region != 'Västra Götaland'">Ale</option>
+                <option :hidden="region != 'Västra Götaland'">Alingsås</option>
+                <option :hidden="region != 'Västra Götaland'">Borås</option>
+                <option :hidden="region != 'Västra Götaland'">Göteborg</option>
+                <option :hidden="region != 'Västra Götaland'">Härryda</option>
+                <option :hidden="region != 'Västra Götaland'">Trollhättan</option>
+                <option :hidden="region != 'Halland'">Halmstad</option>
+                <option :hidden="region != 'Halland'">Falkenberg</option>
+                <option :hidden="region != 'Halland'">Kungsbacka</option>
+                <option :hidden="region != 'Halland'">Varberg</option>
+                <option :hidden="region != 'Skåne'">Malmö</option>
+                <option :hidden="region != 'Skåne'">Helsingborg</option>
+                <option :hidden="region != 'Skåne'">Lund</option>
+                <option :hidden="region != 'Skåne'">Kristianstad</option>
+                <option :hidden="region != 'Skåne'">Landskrona</option>
+                <option :hidden="region != 'Skåne'">Trelleborg</option>
+                <option :hidden="region != 'Skåne'">Ystad</option>
+                <option :hidden="region != 'Stockholms län'">Stockholm</option>
+                <option :hidden="region != 'Stockholms län'">Huddinge</option>
+                <option :hidden="region != 'Uppsala län'">Uppsala</option>
+                <option :hidden="region != 'Uppsala län'">Enköping</option>
+                <option :hidden="region != 'Jönköpings län'">Jönköping</option>
+            </select>
+
+            <!-- Submit button -->
+            <div class="d-grid mt-4">
+                <button type="submit" @click="Register($data);" class="btn btn-primary"
+                    :disabled="pass != rpass || pass == '' || fname == '' || lname == '' || id.length != 10 || region == '' || muni == ''">Register</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function Register({ fname, lname, id, pass, region, muni }) {
+            fetch("register", {
+                method: "POST",
+                body: JSON.stringify({
+                    fname: fname,
+                    lname: lname,
+                    id: id,
+                    password: pass,
+                    region: region,
+                    municipality: muni
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((response) => response.json()).then((data) => {
+                if (data.success == false) {
+                    document.getElementById("errorMessageBox").style.display = 'block';
+                    document.getElementById("errorMessage").innerHTML = data.message;
+                    return;
+                }
+
+                localStorage.setItem("uuid", data.uuid);
+                localStorage.setItem("user", JSON.stringify(data.data));
+                localStorage.initial = "YESSIR!";
+                window.location.replace("/portfolio.html");
+            });
+        }
+    </script>
 </body>
 
 </html>

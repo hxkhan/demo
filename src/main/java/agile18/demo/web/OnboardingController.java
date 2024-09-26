@@ -20,12 +20,6 @@ public class OnboardingController {
         this.onboarding = ob;
     }
 
-    @GetMapping("/")
-    public String onGetIndex() {
-        return "Hello World";
-    }
-
-    //Used for sent form data for login to backend
     @PostMapping("/login")
     public Map<String, Object> onLoginUser(@RequestBody BodyOfLoginUser body) {
         if (!body.isValid()) {
