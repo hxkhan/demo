@@ -1,12 +1,16 @@
 package agile18.demo.model;
 
+import java.util.List;
+import java.util.Map;
+
 //import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import agile18.demo.model.Exceptions.*;
-
-import java.util.*;
+import agile18.demo.model.Exceptions.CitizenDoesNotExistException;
+import agile18.demo.model.Exceptions.CitizenExistsException;
+import agile18.demo.model.Exceptions.ReferendumExistsException;
+import agile18.demo.model.Exceptions.ReferendumNotFoundException;
 
 @Service
 public class Database {
@@ -190,6 +194,10 @@ public class Database {
         return !jdbc.queryForList(sql).isEmpty();
     }
     
+    /**
+     * Retrieve the voting results of a referendum including the number of blank votes,
+     * votes in favor, and votes against, from the RefResults table.
+     */
     public int[] getReferendumResult(String referendumId) throws ReferendumNotFoundException {
         String sql = "SELECT * FROM RefResults WHERE referendum = " + referendumId + ";";
         List<Map<String, Object>> results = jdbc.queryForList(sql);
