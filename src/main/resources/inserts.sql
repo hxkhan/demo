@@ -14,13 +14,11 @@ INSERT INTO Citizens VALUES ('0311261111', 'David Golebiak', 'tjabatjena', 'Göt
 INSERT INTO Citizens VALUES ('9603291111', 'Sebastian Kolbel', 'hejhallo', 'Varberg');
 
 -- Referendums
-INSERT INTO Referendum VALUES (1, 'Västra Götaland', 'dance', 'dancing!', '2024-09-23', '2024-09-30');
-INSERT INTO Referendum VALUES (2, 'Varberg', 'no dance', 'no dance plz', '2024-09-23', '2024-09-30');
-INSERT INTO Referendum VALUES (3, 'Varberg', 'later', 'late', '2024-09-20', '2024-09-22');
+INSERT INTO Referendum VALUES (1, 'Västra Götaland', 'Dance prohibition!', 'Please no dancing!', '2024-10-01', '2024-10-07');
+INSERT INTO Referendum VALUES (2, 'Varberg', 'Redirect pension fund!', 'I think we should redirect our pension fund to stock options on the oil market!', '2024-10-03', '2024-10-10');
 
 INSERT INTO RefResults VALUES (1, 1, 0, 0);
 INSERT INTO RefResults VALUES (2, 0, 0, 0);
-INSERT INTO RefResults VALUES (3, 0, 0, 0);
 
 INSERT INTO RefRoll VALUES ('0305251111', 1);
 
