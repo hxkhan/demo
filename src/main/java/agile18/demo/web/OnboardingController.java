@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.*;
 
 import agile18.demo.model.Onboarder;
 import agile18.demo.model.Exceptions.*;
-import agile18.demo.model.Citizen;
-import io.micrometer.common.util.StringUtils;
+import agile18.demo.model.Records.Citizen;
+import agile18.Utils;
 
-// Controller for onboarding processes of users, both new and for login of aalready existing users
+// Controller for onboarding processes of users, both new and for login of already existing users
 @RestController
 public class OnboardingController {
     private final Onboarder onboarding;
@@ -59,7 +59,7 @@ public class OnboardingController {
         }
 
         try {
-            UUID uuid = onboarding.register(body.name(), body.id(), body.password());
+            UUID uuid = onboarding.register(body.name(), body.id(), body.password(), body.municipality());
             return Map.of(
                 "success", true,
                 "uuid", uuid.toString()
@@ -68,6 +68,11 @@ public class OnboardingController {
             return Map.of(
                 "success", false,
                 "message", "user already exists"
+            );
+        } catch (MunicipalityDoesNotExist e) {
+            return Map.of(
+                "success", false,
+                "message", "invalid municipality"
             );
         }
     }
@@ -79,14 +84,14 @@ public class OnboardingController {
     }
 }
 
-record BodyOfRegisterUser(String name, String id, String password) {
+record BodyOfRegisterUser(String name, String id, String password, String municipality) {
     boolean isValid() {
-        return !StringUtils.isEmpty(name) && id.length() == 10 && !StringUtils.isEmpty(password);
+        return !Utils.isEmpty(name, id, password, municipality) && id.length() == 10;
     }
 }
 
 record BodyOfLoginUser(String id, String password) {
     boolean isValid() {
-        return id.length() == 10 && !StringUtils.isEmpty(password);
+        return !Utils.isEmpty(id, password) && id.length() == 10;
     }
 }

@@ -2,6 +2,7 @@ package agile18.demo.model;
 
 import org.springframework.stereotype.Service;
 import agile18.demo.model.Exceptions.*;
+import agile18.demo.model.Records.Citizen;
 
 import java.util.*;
 
@@ -13,13 +14,15 @@ public class Onboarder {
 
     public Onboarder(Database db) {
         this.db = db;
-        // just for test
-        db.testReferendum();
     }
 
-    public UUID register(String name, String id, String pass) throws CitizenExistsException {
+    public UUID register(String name, String id, String pass, String muni) throws CitizenExistsException, MunicipalityDoesNotExist {
+        if (!db.getAllMunicipalities().contains(muni)) {
+            throw new MunicipalityDoesNotExist();
+        }
+
         try {
-            db.createCitizen(name, id, pass);
+            db.createCitizen(name, id, pass, muni);
 
             UUID uuid = java.util.UUID.randomUUID();
             logins.put(uuid, id);
