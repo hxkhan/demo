@@ -6,9 +6,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import agile18.demo.model.Exceptions.NotLoggedInException;
-import agile18.demo.model.Exceptions.ReferendumExistsException;
 import agile18.demo.model.Records.Citizen;
-import agile18.demo.model.Records.Referendum;
+import agile18.demo.model.Records.Poll;
 
 @Service
 public class PollingStation {
@@ -20,17 +19,14 @@ public class PollingStation {
         this.ob = ob;
     }
 
-    public List<Referendum> getAllReferendums() {
-        return db.getAllReferendums();
+    public List<Poll> getAllPolls() {
+        return db.getAllPolls();
     }
 
-    public void createReferendum(UUID accessToken, String title, String body, String level, String startDate, String endDate) throws NotLoggedInException {
-        try {
-            Citizen creator = ob.checkLogin(accessToken);
-            String id = db.getUniqueRefId();
-            db.createReferendum(id, creator.municipality(), title, body, startDate, endDate);
-        } catch (ReferendumExistsException e) {
-            // This should not happen!! Use AUTO_INCREMENT in sql
-        }
+    public void createPoll(UUID accessToken, String title, String body, String level, String startDate, String endDate) throws NotLoggedInException {
+        System.out.println("Create Poll called!");
+        Citizen creator = ob.checkLogin(accessToken);
+        Level lev = Level.valueOf(level);
+        db.createPoll(creator, lev, title, body, startDate, endDate);
     }
 }

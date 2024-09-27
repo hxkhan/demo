@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import agile18.demo.model.PollingStation;
 import agile18.demo.model.Exceptions.*;
-import agile18.demo.model.Records.Referendum;
+import agile18.demo.model.Records.Poll;
 import io.micrometer.common.util.StringUtils;
 
 @RestController
@@ -19,8 +19,8 @@ public class PollingStationController {
         this.ps = ps;
     }
 
-    @PostMapping("/create-referendum")
-    public Map<String, Object> onCreateReferendum(@RequestParam String uuid, @RequestBody BodyOfCreateReferendum body) {
+    @PostMapping("/create-poll")
+    public Map<String, Object> onCreatePoll(@RequestParam String uuid, @RequestBody BodyOfCreatePoll body) {
         if (!body.isValid()) {
             return Map.of(
                 "success", false,
@@ -29,7 +29,7 @@ public class PollingStationController {
         }
 
         try {
-            ps.createReferendum(UUID.fromString(uuid), body.title(), body.body(), body.level(), body.startDate(), body.endDate());
+            ps.createPoll(UUID.fromString(uuid), body.title(), body.body(), body.level(), body.startDate(), body.endDate());
             return Map.of(
                 "success", true
             );
@@ -46,16 +46,17 @@ public class PollingStationController {
         }
     }
 
-    @GetMapping("/referendums")
-    public List<Referendum> onGetUser() {
-        return ps.getAllReferendums();
+    @GetMapping("/polls")
+    public List<Poll> onGetUser() {
+        return ps.getAllPolls();
     }
 }
 
 
-record BodyOfCreateReferendum(String title, String body, String level, String startDate, String endDate) {
+record BodyOfCreatePoll(String title, String body, String level, String startDate, String endDate) {
     boolean isValid() {
         return !StringUtils.isEmpty(title) && !StringUtils.isEmpty(body) && !StringUtils.isEmpty(level) &&
-            !StringUtils.isEmpty(startDate) && !StringUtils.isEmpty(endDate);
+            !StringUtils.isEmpty(startDate) && !StringUtils.isEmpty(endDate) && 
+            (level.equals("Municipal") || level.equals("Regional") || level.equals("National"));
     }
 }

@@ -19,6 +19,8 @@ public class Utils {
                 total.append("'");
                 total.append(s);
                 total.append("'");
+            } else if (val instanceof Integer v) {
+                total.append(v);
             }
             
             if (i != values.length-1) {

@@ -1,55 +1,42 @@
 -- TO RESET EVERYTHING
-DROP TABLE IF EXISTS RefResults;
-DROP TABLE IF EXISTS RefRoll;
-DROP TABLE IF EXISTS Referendum;
-DROP TABLE IF EXISTS Citizens;
+DROP TABLE IF EXISTS Poll;
+DROP TABLE IF EXISTS Citizen;
+DROP TABLE IF EXISTS Region;
 DROP TABLE IF EXISTS Municipality;
-DROP TABLE IF EXISTS Area;
-
 
 -- INIT
-CREATE TABLE Area (
-    name TEXT PRIMARY KEY,
-    level TEXT NOT NULL,
-    partof TEXT DEFAULT ('Not municipal'),
-
-    CHECK (level IN ('National', 'County', 'Municipal'))
+CREATE TABLE Region (
+    name TEXT PRIMARY KEY
 );
 
 CREATE TABLE Municipality (
-    name TEXT PRIMARY KEY REFERENCES Area(name)
+    name TEXT PRIMARY KEY
 );
 
-CREATE TABLE Citizens (
+CREATE TABLE Citizen (
     id CHAR(10) PRIMARY KEY,
-    name TEXT NOT NULL,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
     pass TEXT NOT NULL,
-    home TEXT REFERENCES Municipality(name),
+    municipality TEXT NOT NULL REFERENCES Municipality(name),
+    region TEXT NOT NULL REFERENCES Region(name),
     CHECK (id ~ '^\d+?$')
 );
 
-
-CREATE TABLE Referendum (
-    id INT PRIMARY KEY,
-    area TEXT NOT NULL REFERENCES Area(name),
+CREATE TABLE Poll (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    creator CHAR(10) NOT NULL REFERENCES Citizen(id),
+    level TEXT NOT NULL,
     title TEXT NOT NULL,
     body TEXT NOT NULL,
     startDate DATE NOT NULL,
     endDate DATE NOT NULL,
 
-    CHECK (startDate < endDate)
-);
-
-CREATE TABLE RefResults (
-    referendum INT PRIMARY KEY REFERENCES Referendum(id),
+    -- votes
     blank INT NOT NULL CHECK (blank >= 0),
     favor INT NOT NULL CHECK (favor >= 0),
-    against INT NOT NULL CHECK (against >= 0)
-);
+    against INT NOT NULL CHECK (against >= 0),
 
-CREATE TABLE RefRoll (
-    citizen CHAR(10) REFERENCES Citizens(id),
-    referendum INT REFERENCES Referendum(id),
-
-    PRIMARY KEY (citizen, referendum)
+    CHECK (level IN ('Municipal', 'Regional', 'National')),
+    CHECK (startDate < endDate)
 );
