@@ -19,7 +19,6 @@ INSERT INTO Referendum VALUES (2, 'Varberg', 'Redirect pension fund!', 'I think 
 
 INSERT INTO RefResults VALUES (1, 1, 0, 0);
 INSERT INTO RefResults VALUES (2, 0, 0, 0);
-INSERT INTO RefResults VALUES (3, 0, 0, 0);
 
 INSERT INTO RefRoll VALUES ('0305251111', 1);
 
