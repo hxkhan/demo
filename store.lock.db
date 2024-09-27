@@ -1,6 +1,6 @@
 #FileLock
-#Wed Sep 25 19:33:32 CEST 2024
-hostName=DESKTOP-KBT9U09
-id=1922a3ebe851ffb5949eb3b8035dde2454790d4a212
+#Fri Sep 27 04:37:54 CEST 2024
+hostName=hk-desktop.mshome.net
+id=192315786da3a6245d6c0a322d8e3b96508208be813
 method=file
-server=192.168.56.1\:59933
+server=172.28.176.1\:50560

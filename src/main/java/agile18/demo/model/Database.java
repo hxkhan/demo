@@ -4,7 +4,11 @@ package agile18.demo.model;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import agile18.Utils;
 import agile18.demo.model.Exceptions.*;
+import agile18.demo.model.Records.Citizen;
+import agile18.demo.model.Records.Referendum;
+import ch.qos.logback.classic.pattern.Util;
 
 import java.util.*;
 
@@ -16,43 +20,66 @@ public class Database {
         this.jdbc = jdbcTemplate;
     }
 
-// --------------------- Citizen ---------------------
+    // --------------------- Citizens ---------------------
     public Citizen getCitizenWithPersonNumber(String id) throws CitizenDoesNotExistException {
         String sql = "SELECT * FROM Citizens WHERE id = '" + id + "';";
         List<Map<String, Object>> result = jdbc.queryForList(sql);
         if (result.isEmpty()) {
             throw new CitizenDoesNotExistException();
         }
-        Citizen user = new Citizen(
-                result.get(0).get("id").toString(),
-                result.get(0).get("name").toString(),
-                result.get(0).get("pass").toString());
-        return user;
+
+        return new Citizen(
+            result.get(0).get("id").toString(),
+            result.get(0).get("name").toString(),
+            result.get(0).get("pass").toString(),
+            result.get(0).get("home").toString()
+        );
     }
     public boolean ifCitizenExists(String id) {
-        String sql = "SELECT 1 FROM Citizens WHERE id = '" + id + "';";
-        return !jdbc.queryForList(sql).isEmpty();
+        return !jdbc.queryForList("SELECT 1 FROM Citizens WHERE id = '" + id + "';").isEmpty();
     }
 
     public List<Citizen> getAllCitizens() {
-        String sql = "SELECT * FROM Citizens;";
-
-        // Query for a list of rows
-        List<Citizen> entities = jdbc.query(sql, (rs, rowNum) -> {
-            return new Citizen(rs.getString("id"), rs.getString("name"), rs.getString("pass"));
+        return jdbc.query("SELECT * FROM Citizens;", (rs, rowNum) -> {
+            return new Citizen(
+                rs.getString("id"),
+                rs.getString("name"),
+                rs.getString("pass"),
+                rs.getString("home")
+            );
         });
-
-        return entities;
     }
-    public void createCitizen(String name, String id, String pass) throws CitizenExistsException {
+
+    public List<String> getAllMunicipalities() {
+        return jdbc.query("SELECT * FROM Municipality;", (r, rowNum) -> {
+            return r.getString("name");
+        });
+    }
+
+    public void createCitizen(String name, String id, String pass, String muni) throws CitizenExistsException {
         if (ifCitizenExists(id)) {
             throw new CitizenExistsException();
         }
-        String sql = "INSERT INTO Citizens VALUES ('" + id + "', '" + name + "', '" + pass + "');";
+
+        //String sql = "INSERT INTO Citizens VALUES ('" + id + "', '" + name + "', '" + pass + "', '" + muni + "');";
+        String sql = "INSERT INTO Citizens VALUES (" + Utils.sqlValues(id, name, pass, muni) + ");";
         jdbc.execute(sql);
     }
 
-    // --------------------- Referendum ---------------------
+    // --------------------- Referendums ---------------------
+
+    public List<Referendum> getAllReferendums() {
+        return jdbc.query("SELECT * FROM Referendum;", (r, rowNum) -> {
+            return new Referendum(
+                r.getInt("id"),
+                r.getString("area"),
+                r.getString("title"),
+                r.getString("body"),
+                r.getString("startDate"),
+                r.getString("endDate")
+            );
+        });
+    }
 
     /** 
      * Creates an unique referendum id by incrementing the highest existing id.
@@ -203,21 +230,5 @@ public class Database {
         Arr[2] = (int)results.get(0).get("against");
 
         return Arr;
-    }
-
-    // --------------------- TEST ---------------------
-    public void testReferendum(){
-        String id = getUniqueRefId();
-        System.out.println("id: "+ id);
-        String now = "2024-09-23";
-        String endDate = "2024-09-30";
-        try {
-            createReferendum(id, "Göteborg", "Ny skola", "Vi behöver..", now, endDate);
-            int[] res = getReferendumResult("1");
-            System.out.println(res[0] + " " + res[1] + " " + res[2]);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-
     }
 }
