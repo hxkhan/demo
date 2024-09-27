@@ -3,6 +3,7 @@ package agile18.demo.model;
 import org.springframework.stereotype.Service;
 import agile18.demo.model.Exceptions.*;
 import agile18.demo.model.Records.Citizen;
+import agile18.demo.model.Records.Municipality;
 
 import java.util.*;
 
@@ -16,20 +17,25 @@ public class Onboarder {
         this.db = db;
     }
 
-    public UUID register(String name, String id, String pass, String muni) throws CitizenExistsException, MunicipalityDoesNotExist {
-        if (!db.getAllMunicipalities().contains(muni)) {
-            throw new MunicipalityDoesNotExist();
+    public UUID register(String fname, String lname, String id, String pass, String homeMunicipality) throws CitizenExistsException, MunicipalityDoesNotExist {
+        boolean found = false;
+        for (Municipality city : db.getAllMunicipalities()) {
+            if (city.name().equals(homeMunicipality)) {
+                found = true;
+                break;
+            }
         }
+        
+        if (!found) throw new MunicipalityDoesNotExist();
 
         try {
-            db.createCitizen(name, id, pass, muni);
-
+            db.getCitizenWithPersonNumber(id);
+            throw new CitizenExistsException();
+        } catch (CitizenDoesNotExistException e) {
+            db.createCitizen(fname, lname, id, pass, homeMunicipality);
             UUID uuid = java.util.UUID.randomUUID();
             logins.put(uuid, id);
             return uuid;
-
-        } catch (CitizenExistsException e) {
-            throw e;
         }
     }
 

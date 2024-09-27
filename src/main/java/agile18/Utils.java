@@ -21,7 +21,7 @@ public class Utils {
                 total.append("'");
             } else if (val instanceof Integer v) {
                 total.append(v);
-            }
+            } else total.append(val);
             
             if (i != values.length-1) {
                 total.append(',');

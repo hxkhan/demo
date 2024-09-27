@@ -1,8 +1,9 @@
 -- TO RESET EVERYTHING
+DROP TABLE IF EXISTS Casted;
 DROP TABLE IF EXISTS Poll;
 DROP TABLE IF EXISTS Citizen;
-DROP TABLE IF EXISTS Region;
 DROP TABLE IF EXISTS Municipality;
+DROP TABLE IF EXISTS Region;
 
 -- INIT
 CREATE TABLE Region (
@@ -10,7 +11,8 @@ CREATE TABLE Region (
 );
 
 CREATE TABLE Municipality (
-    name TEXT PRIMARY KEY
+    name TEXT PRIMARY KEY,
+    region TEXT NOT NULL REFERENCES Region(name)
 );
 
 CREATE TABLE Citizen (
@@ -18,14 +20,19 @@ CREATE TABLE Citizen (
     firstName TEXT NOT NULL,
     lastName TEXT NOT NULL,
     pass TEXT NOT NULL,
-    municipality TEXT NOT NULL REFERENCES Municipality(name),
-    region TEXT NOT NULL REFERENCES Region(name),
+    home TEXT NOT NULL REFERENCES Municipality(name),
+
     CHECK (id ~ '^\d+?$')
 );
 
 CREATE TABLE Poll (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    creator CHAR(10) NOT NULL REFERENCES Citizen(id),
+    
+    -- home is where this poll was created (creator's region/municipality at the time of creation)
+    -- will also be very good for statistics later on
+    home TEXT NOT NULL REFERENCES Municipality(name),
+
+    -- level decides if this will be a national, regional or municipal poll
     level TEXT NOT NULL,
     title TEXT NOT NULL,
     body TEXT NOT NULL,
@@ -40,3 +47,17 @@ CREATE TABLE Poll (
     CHECK (level IN ('Municipal', 'Regional', 'National')),
     CHECK (startDate < endDate)
 );
+
+-- one vote per citizen/poll and there is no record of who voted what like the group decided; very safe very secure
+CREATE TABLE Casted (
+    voter CHAR(10) REFERENCES Citizen(id),
+    poll INT REFERENCES Poll(id),
+
+    PRIMARY KEY (voter, poll)
+)
+
+/* A voting procedure in Database.java would be two updates
+    INSERT INTO Casted VALUES ('0305251111', 2);
+    UPDATE Poll SET favor = favor + 1;
+*/
+

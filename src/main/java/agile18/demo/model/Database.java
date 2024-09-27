@@ -1,23 +1,30 @@
 package agile18.demo.model;
 
-//import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import agile18.Utils;
 import agile18.demo.model.Exceptions.*;
 import agile18.demo.model.Records.Citizen;
+import agile18.demo.model.Records.Municipality;
 import agile18.demo.model.Records.Poll;
 
 import java.util.*;
 
 /*
-    DATABASE CONTRACT: Everything passed to create functions must be correct and error checked!
+    DATABASE CONTRACT: Everything passed to DB methods must be correct and error checked!
     In case of wrong input, database will have undefined behaviour
 
     This includes:
-        createCitizen
-        createPoll
+        createCitizen() for e.g. id must be of length 10 and user must NOT already exist in DB
+            which means caller should first check so user does not exist with getCitizenWithPersonNumber()
+
+        createPoll() for e.g. level cannot be null, and start/end dates must be in the correct format like 2024-10-14
+
+    ALSO: Do not implement business logic in Database.java. This is supposed to be a CRUD object.
+        That means (Create, Read, Update, Delete).
+        If the user CAN or CAN NOT cast a vote is not up to the database,
+            it is upto the caller of this object's methods and for them to ensure the rules are obeyed
 
 */
 
@@ -42,13 +49,8 @@ public class Database {
             result.get(0).get("firstName").toString(),
             result.get(0).get("lastName").toString(),
             result.get(0).get("pass").toString(),
-            result.get(0).get("municipality").toString(),
-            result.get(0).get("region").toString()
+            result.get(0).get("home").toString()
         );
-    }
-
-    public boolean ifCitizenExists(String id) {
-        return !jdbc.queryForList("SELECT 1 FROM Citizen WHERE id = '" + id + "';").isEmpty();
     }
 
     public List<Citizen> getAllCitizens() {
@@ -58,24 +60,19 @@ public class Database {
                 rs.getString("firstName"),
                 rs.getString("lastName"),
                 rs.getString("pass"),
-                rs.getString("municipality"),
-                rs.getString("region")
+                rs.getString("home")
             );
         });
     }
 
-    public List<String> getAllMunicipalities() {
+    public List<Municipality> getAllMunicipalities() {
         return jdbc.query("SELECT * FROM Municipality;", (r, rowNum) -> {
-            return r.getString("name");
+            return new Municipality(r.getString("name"), r.getString("region"));
         });
     }
 
-    public void createCitizen(String name, String id, String pass, String muni) throws CitizenExistsException {
-        if (ifCitizenExists(id)) {
-            throw new CitizenExistsException();
-        }
-
-        String sql = "INSERT INTO Citizen VALUES (" + Utils.sqlValues(id, name, pass, muni) + ");";
+    public void createCitizen(String fname, String lname, String id, String pass, String home) {
+        String sql = "INSERT INTO Citizen VALUES (" + Utils.sqlValues(id, fname, lname, pass, home) + ");";
         jdbc.execute(sql);
     }
 
@@ -84,8 +81,8 @@ public class Database {
         return jdbc.query("SELECT * FROM Poll;", (r, rowNum) -> {
             return new Poll(
                 r.getInt("id"),
-                r.getString("creator"),
-                Level.valueOf(r.getString("level")),
+                r.getString("home"),
+                LevelEnum.valueOf(r.getString("level")),
                 r.getString("title"),
                 r.getString("body"),
                 r.getString("startDate"),
@@ -97,14 +94,50 @@ public class Database {
         });
     }
 
-    public void createPoll(Citizen creator, Level level, String title, String body, String startDate, String endDate) {
-        String sql = "INSERT INTO Poll (creator, level, title, body, startDate, endDate, blank, favor, against) VALUES (" + 
-            Utils.sqlValues(creator.id(), level, title, body, startDate, endDate, 0, 0, 0) + ");";
+    public Poll getPollWithID(int id) throws PollDoesNotExistException {
+        var list = jdbc.query("SELECT * FROM Poll WHERE id = " + id + ";", (r, rowNum) -> {
+            return new Poll(
+                r.getInt("id"),
+                r.getString("home"),
+                LevelEnum.valueOf(r.getString("level")),
+                r.getString("title"),
+                r.getString("body"),
+                r.getString("startDate"),
+                r.getString("endDate"),
+                r.getInt("blank"),
+                r.getInt("favor"),
+                r.getInt("against")
+            );
+        });
 
+        if (list.isEmpty()) throw new PollDoesNotExistException();
+        return list.get(0);
+    }
+
+    public void createPoll(Citizen creator, LevelEnum level, String title, String body, String startDate, String endDate) {
+        String values = Utils.sqlValues(creator.home(), level.toString(), title, body, startDate, endDate, 0, 0, 0);
+        String sql = "INSERT INTO Poll (home, level, title, body, startDate, endDate, blank, favor, against) VALUES (" + values + ");";
         jdbc.execute(sql);
     }
 
-    public void castVote(Citizen voter, String pollId, VoteEnum vote) {
+    public boolean canCast(Citizen voter, int poll) {
+        String sql = "SELECT 1 FROM Casted WHERE voter = '" + voter.id() + "' AND poll = " + poll + ";";
+        return jdbc.queryForList(sql).isEmpty();
+    }
 
+    // let the caller of castVote() call canCast() and implement the business logic
+    // remember, just CRUD
+    public void castVote(Citizen voter, int poll, VoteEnum vote) {
+        // cast a vote
+        jdbc.execute("INSERT INTO Casted VALUES (" + Utils.sqlValues(voter.id(), poll) + ");");
+
+        String column = switch(vote) {
+            case Favor -> "favour";
+            case Against -> "against";
+            case Blank -> "blank";
+        };
+
+        // update poll
+        jdbc.execute("UPDATE Polls SET " + column + " = " + column + " + 1;");
     }
 }

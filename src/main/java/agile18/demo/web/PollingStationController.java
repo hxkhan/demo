@@ -6,10 +6,11 @@ import java.util.UUID;
 
 import org.springframework.web.bind.annotation.*;
 
+import agile18.Utils;
+import agile18.demo.model.LevelEnum;
 import agile18.demo.model.PollingStation;
 import agile18.demo.model.Exceptions.*;
 import agile18.demo.model.Records.Poll;
-import io.micrometer.common.util.StringUtils;
 
 @RestController
 public class PollingStationController {
@@ -29,7 +30,7 @@ public class PollingStationController {
         }
 
         try {
-            ps.createPoll(UUID.fromString(uuid), body.title(), body.body(), body.level(), body.startDate(), body.endDate());
+            ps.createPoll(UUID.fromString(uuid), body.title(), body.body(), LevelEnum.valueOf(body.level()),  body.startDate(), body.endDate());
             return Map.of(
                 "success", true
             );
@@ -47,16 +48,30 @@ public class PollingStationController {
     }
 
     @GetMapping("/polls")
-    public List<Poll> onGetUser() {
+    public List<Poll> onGetPolls() {
         return ps.getAllPolls();
+    }
+
+    @GetMapping("/poll")
+    public Map<String, Object>  onGetPoll(@RequestParam int id) {
+        try {
+            return Map.of(
+                "success", true,
+                "data", ps.getPollWithID(id)
+            );
+        } catch (PollDoesNotExistException e) {
+            return Map.of(
+                "success", false,
+                "message", "poll does not exist"
+            );
+        }
     }
 }
 
 
 record BodyOfCreatePoll(String title, String body, String level, String startDate, String endDate) {
     boolean isValid() {
-        return !StringUtils.isEmpty(title) && !StringUtils.isEmpty(body) && !StringUtils.isEmpty(level) &&
-            !StringUtils.isEmpty(startDate) && !StringUtils.isEmpty(endDate) && 
+        return !Utils.isEmpty(title, body, level, startDate, endDate) &&
             (level.equals("Municipal") || level.equals("Regional") || level.equals("National"));
     }
 }

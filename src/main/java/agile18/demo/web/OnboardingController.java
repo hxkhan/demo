@@ -59,7 +59,7 @@ public class OnboardingController {
         }
 
         try {
-            UUID uuid = onboarding.register(body.name(), body.id(), body.password(), body.municipality());
+            UUID uuid = onboarding.register(body.firstName(), body.lastName(), body.id(), body.password(), body.municipality());
             return Map.of(
                 "success", true,
                 "uuid", uuid.toString()
@@ -84,9 +84,9 @@ public class OnboardingController {
     }
 }
 
-record BodyOfRegisterUser(String name, String id, String password, String municipality) {
+record BodyOfRegisterUser(String firstName, String lastName, String id, String password, String municipality) {
     boolean isValid() {
-        return !Utils.isEmpty(name, id, password, municipality) && id.length() == 10;
+        return !Utils.isEmpty(firstName, lastName, id, password, municipality) && id.length() == 10;
     }
 }
 

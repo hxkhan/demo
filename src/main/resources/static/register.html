@@ -134,7 +134,8 @@
             fetch("register", {
                 method: "POST",
                 body: JSON.stringify({
-                    name: fname+" "+lname,
+                    firstName: fname,
+                    lastName: lname,
                     id: id,
                     password: pass,
                     region: region,
