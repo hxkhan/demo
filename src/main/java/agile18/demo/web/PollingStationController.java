@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import agile18.Utils;
 import agile18.demo.model.LevelEnum;
 import agile18.demo.model.PollingStation;
+import agile18.demo.model.VoteEnum;
 import agile18.demo.model.Exceptions.*;
 import agile18.demo.model.Records.Poll;
 
@@ -47,6 +48,48 @@ public class PollingStationController {
         }
     }
 
+    @PostMapping("/cast-vote")
+    public Map<String, Object> onCastVote(@RequestParam String uuid, @RequestBody BodyOfCastVote body) {
+        if (!body.isValid()) {
+            return Map.of(
+                "success", false,
+                "message", "invalid request body"
+            );
+        }
+
+        try {
+            ps.castVote(UUID.fromString(uuid), body.id(), VoteEnum.valueOf(body.vote()));
+            return Map.of(
+                "success", true
+            );
+        } catch (IllegalArgumentException e) {
+            return Map.of(
+                "success", false,
+                "message", "invalid uuid"
+            );
+        } catch (NotLoggedInException e) {
+            return Map.of(
+                "success", false,
+                "message", "not logged in"
+            );
+        } catch (PollDoesNotExistException e) {
+            return Map.of(
+                "success", false,
+                "message", "poll does not exist"
+            );
+        } catch (CitizenHasAlreadyCastedException e) {
+            return Map.of(
+                "success", false,
+                "message", "already casted"
+            );
+        } catch (UnAuthorisedToVote e) {
+            return Map.of(
+                "success", false,
+                "message", "unauthorised to vote"
+            );
+        }
+    }
+
     @GetMapping("/polls")
     public List<Poll> onGetPolls() {
         return ps.getAllPolls();
@@ -68,6 +111,12 @@ public class PollingStationController {
     }
 }
 
+
+record BodyOfCastVote(int id, String vote) {
+    boolean isValid() {
+        return !Utils.isEmpty(vote) && (vote.equals("Favor") || vote.equals("Against") || vote.equals("Blank"));
+    }
+}
 
 record BodyOfCreatePoll(String title, String body, String level, String startDate, String endDate) {
     boolean isValid() {

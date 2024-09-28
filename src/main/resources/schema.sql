@@ -26,7 +26,7 @@ CREATE TABLE Citizen (
 );
 
 CREATE TABLE Poll (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY,
     
     -- home is where this poll was created (creator's region/municipality at the time of creation)
     -- will also be very good for statistics later on
@@ -58,6 +58,6 @@ CREATE TABLE Casted (
 
 /* A voting procedure in Database.java would be two updates
     INSERT INTO Casted VALUES ('0305251111', 2);
-    UPDATE Poll SET favor = favor + 1;
+    UPDATE Poll SET favor = favor + 1 WHERE id = 2;
 */
 

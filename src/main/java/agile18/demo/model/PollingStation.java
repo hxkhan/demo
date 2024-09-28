@@ -32,25 +32,31 @@ public class PollingStation {
         return db.getAllPolls();
     }
 
-    public void castVote(UUID accessToken, int pollID, VoteEnum vote) throws NotLoggedInException, PollDoesNotExistException, CitizenHasAlreadyCastedException {
+    public void castVote(UUID accessToken, int pollID, VoteEnum vote) 
+    throws NotLoggedInException, PollDoesNotExistException, CitizenHasAlreadyCastedException, UnAuthorisedToVote {
         Citizen voter = ob.checkLogin(accessToken);
         Poll poll = db.getPollWithID(pollID);
+        if (poll == null) throw new PollDoesNotExistException();
 
-        if (!db.canCast(voter, pollID)) throw new CitizenHasAlreadyCastedException();
+        // if the voter has already cast in this poll
+        if (db.hasCast(voter, poll.id())) throw new CitizenHasAlreadyCastedException();
 
         switch (poll.level()) {
             case LevelEnum.National:
-                db.castVote(voter, pollID, vote); 
+                db.castVote(voter, poll.id(), vote); 
                 break;
 
-            /* case LevelEnum.Regional:
-
-                db.castVote(voter, pollID, vote); 
+            case LevelEnum.Regional:
+                // if poll.region != voter.region
+                if (!poll.home().region().equals(voter.home().region())) throw new UnAuthorisedToVote();
+                db.castVote(voter, poll.id(), vote);
                 break;
 
             case LevelEnum.Municipal:
-                db.castVote(voter, pollID, vote); 
-                break; */
+                // if poll.municipality != voter.municipality
+                if (!poll.home().municipality().equals(voter.home().municipality())) throw new UnAuthorisedToVote();
+                db.castVote(voter, poll.id(), vote); 
+                break;
         }
     }
 }

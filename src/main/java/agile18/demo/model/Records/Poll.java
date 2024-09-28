@@ -2,10 +2,9 @@ package agile18.demo.model.Records;
 
 import agile18.demo.model.LevelEnum;
 
-// 1:1 representation of a Referendum in database; add the rest later
 public record Poll(
     int id,
-    String home,
+    MuniRegion home,
     LevelEnum level,
     String title,
     String body,

@@ -130,7 +130,7 @@
     </div>
 
     <script>
-        function Register({ fname, lname, id, pass, region, muni }) {
+        function Register({ fname, lname, id, pass, muni }) {
             fetch("register", {
                 method: "POST",
                 body: JSON.stringify({
@@ -138,7 +138,6 @@
                     lastName: lname,
                     id: id,
                     password: pass,
-                    region: region,
                     municipality: muni
                 }),
                 headers: {

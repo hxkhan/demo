@@ -40,19 +40,21 @@ Our main UN sustainability goal is nr 16. Direct democracy can promote transpare
 
 ## Rest API Testing
 
-Register a user
+Register a citizen
 ```
 curl --request POST \
   --url http://localhost:8080/register \
   --header 'Content-Type: application/json' \
   --data '{
-  "name": "John Doe",
+  "firstName": "John",
+  "lastName": "Doe",
   "id": "0305250000",
-  "password": "123"
+  "password": "123",
+  "municipality": "Göteborg"
 }'
 ```
 
-Login a user
+Login a citizen
 ```
 curl --request POST \
   --url http://localhost:8080/login \
@@ -63,11 +65,36 @@ curl --request POST \
 }'
 ```
 
-Get all users
+Get all citizens
 ```
 curl --request GET \
   --url http://localhost:8080/citizens
 ```
 
+Create a poll, make sure to run login first and paste the uuid down below in the url
+```
+curl --request POST \
+  --url 'http://localhost:8080/create-poll?uuid=b25e7996-b9a5-4cf4-9c86-65e0b2363750' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "title": "Legalize Marijuana!",
+  "body": "plz plzz",
+  "level": "Municipal",
+  "startDate": "2024-11-01",
+  "endDate": "2024-12-01"
+}'
+```
+
+Cast a vote, make sure to run login first and paste the uuid down below in the url
+```
+curl --request POST \
+  --url 'http://localhost:8080/cast-vote?uuid=852ad138-41bb-4519-919e-8de4a9e257d5' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "id": 0,
+  "vote": "Favor"
+}'
+```
+
 ## Response
-Register and Login are supposed to return a json with a key `success` that is either `true` or `false`. If it is `false` then there is also a `message` key present that provides context on why. If it is `true` then we know what should be present, for login and register `success: true` means a key `uuid` will be present. This is the access token for further requests.
+Responses are supposed to return a json with a key `success` that is either `true` or `false`. If it is `false` then there is also a `message` key present that provides context on why. If it is `true` then we know what should be present, for login and register `success: true` means a key `uuid` will be present. This is the access token for further requests.
