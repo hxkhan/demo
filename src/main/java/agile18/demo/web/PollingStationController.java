@@ -48,6 +48,11 @@ public class PollingStationController {
         }
     }
 
+    @GetMapping("/cast-vote")
+    public Map<String, Object> onGetCastVote(@RequestParam String uuid, @RequestParam int id, @RequestParam String vote) {
+        return onCastVote(uuid, new BodyOfCastVote(id, vote));
+    }
+
     @PostMapping("/cast-vote")
     public Map<String, Object> onCastVote(@RequestParam String uuid, @RequestBody BodyOfCastVote body) {
         if (!body.isValid()) {
