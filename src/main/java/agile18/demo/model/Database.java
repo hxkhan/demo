@@ -25,7 +25,7 @@ import java.util.*;
         That means (Create, Read, Update, Delete).
         If the user CAN or CAN NOT cast a vote is not up to the database,
             it is upto the caller of this object's methods and for them to ensure the rules are obeyed
-            thus sufficient methods like getPoll() or hasCast() need to be provided to the caller of database 
+            thus sufficient methods like getPollWithID() or hasCast() need to be provided to the caller of database 
             so it can check all of the prerequisites and requirements
 
     NO exceptions & NO error checking!
@@ -148,16 +148,14 @@ public class Database {
     // remember, just CRUD..
     // the business logic is in PollingStation.java
     public void castVote(Citizen voter, int poll, VoteEnum vote) {
-        // cast a vote
-        jdbc.execute("INSERT INTO Casted VALUES (" + Utils.sqlValues(voter.id(), poll) + ");");
-
         String column = switch(vote) {
             case Favor -> "favor";
             case Against -> "against";
             case Blank -> "blank";
         };
 
-        // update poll
+        // vote
+        jdbc.execute("INSERT INTO Casted VALUES (" + Utils.sqlValues(voter.id(), poll) + ");");
         jdbc.execute("UPDATE Poll SET " + column + " = " + column + " + 1 WHERE id = " + poll + ";");
     }
 }
