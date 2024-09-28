@@ -56,8 +56,12 @@ CREATE TABLE Casted (
     PRIMARY KEY (voter, poll)
 )
 
-/* A voting procedure in Database.java would be two updates
+/* A voting procedure in Database.java would be two updates in a single transaction
+
+    BEGIN TRANSACTION;
     INSERT INTO Casted VALUES ('0305251111', 2);
     UPDATE Poll SET favor = favor + 1 WHERE id = 2;
+    COMMIT;
+
 */
 

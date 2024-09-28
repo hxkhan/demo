@@ -154,8 +154,13 @@ public class Database {
             case Blank -> "blank";
         };
 
+        String sql = "BEGIN TRANSACTION;\n" + 
+            "INSERT INTO Casted VALUES (" + Utils.sqlValues(voter.id(), poll) + ");" +
+            "UPDATE Poll SET " + column + " = " + column + " + 1 WHERE id = " + poll + ";\n" +
+            "COMMIT;";
+
+
         // vote
-        jdbc.execute("INSERT INTO Casted VALUES (" + Utils.sqlValues(voter.id(), poll) + ");");
-        jdbc.execute("UPDATE Poll SET " + column + " = " + column + " + 1 WHERE id = " + poll + ";");
+        jdbc.execute(sql);
     }
 }
