@@ -1,5 +1,8 @@
 package agile18.demo.model;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -7,8 +10,6 @@ import agile18.Utils;
 import agile18.demo.model.Records.Citizen;
 import agile18.demo.model.Records.MuniRegion;
 import agile18.demo.model.Records.Poll;
-
-import java.util.*;
 
 /*
     DATABASE CONTRACT: Everything passed to DB methods is to be expected to be correct and error checked!
@@ -137,6 +138,10 @@ public class Database {
         String sql = "INSERT INTO Poll VALUES (" + values + ");";
         jdbc.execute(sql);
         return id;
+    }
+    public void removePoll(int id){
+        String sql = "DELETE FROM Poll WHERE id = " + id + ";";
+        jdbc.execute(sql);
     }
 
     public boolean hasCast(Citizen voter, int poll) {
