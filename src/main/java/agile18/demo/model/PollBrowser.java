@@ -38,9 +38,7 @@ public class PollBrowser {
         for (Poll p : allPolls) {
             try {
                 start = df.parse(p.startDate());
-                System.out.println("start: " + start);
                 end = df.parse(p.endDate());
-                System.out.println("end: " + end);
             } catch (Exception e) {
                 continue;
             }
@@ -55,7 +53,6 @@ public class PollBrowser {
     }
     public List<Poll> getRegPolls(MuniRegion muniregi, PollStatus pollStatus) {
         List<Poll> allPolls = db.getAllPolls();
-        System.out.println(allPolls);
         List<Poll> regPolls = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         Date start;
@@ -65,9 +62,8 @@ public class PollBrowser {
                 start = df.parse(p.startDate());
                 end = df.parse(p.endDate());
             } catch (Exception e) {
-                System.out.println(e);
                 continue;
-            }           
+            }
             if (p.home().region().equals(muniregi.region()) && isPollDateInRange(start, end, pollStatus)) {
                 regPolls.add(p);
             }
