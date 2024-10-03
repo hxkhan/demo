@@ -55,7 +55,6 @@ public class PollBrowser {
         }
         return regPolls;
     }
-
     // Method for filtering polls for the national level 
     public List<Poll> getNatPolls(){
         return getNatPolls(null);
@@ -70,7 +69,6 @@ public class PollBrowser {
         }
         return natPolls;
     }
-
     // Method for filtering polls created by a specific citizen
     public List<Poll> getPollsByCitizen(Citizen c){
         return getPollsByCitizen(c, null);
