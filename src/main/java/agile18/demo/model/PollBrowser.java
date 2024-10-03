@@ -8,10 +8,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import agile18.demo.model.Database.Database;
 import agile18.demo.model.Exceptions.PollDoesNotExistException;
-import agile18.demo.model.Records.Citizen;
-import agile18.demo.model.Records.MuniRegion;
-import agile18.demo.model.Records.Poll;
+import agile18.demo.model.Records.*;
 
 
 @Service
@@ -72,10 +71,12 @@ public class PollBrowser {
         }
         return natPolls;
     }
+
     // Method for filtering polls created by a specific citizen
     public List<Poll> getPollsByCitizen(Citizen c){
         return getPollsByCitizen(c, null);
     }
+    
     public List<Poll> getPollsByCitizen(Citizen c, PollEnum pe) {
         List<Poll> allPolls = db.getAllPolls(); 
         List<Poll> citizenPolls = new ArrayList<>();

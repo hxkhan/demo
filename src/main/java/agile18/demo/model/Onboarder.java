@@ -1,6 +1,8 @@
 package agile18.demo.model;
 
 import org.springframework.stereotype.Service;
+
+import agile18.demo.model.Database.Database;
 import agile18.demo.model.Exceptions.*;
 import agile18.demo.model.Records.Citizen;
 import agile18.demo.model.Records.MuniRegion;

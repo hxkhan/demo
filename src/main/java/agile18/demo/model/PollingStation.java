@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import agile18.demo.model.Database.Database;
 import agile18.demo.model.Exceptions.*;
 import agile18.demo.model.Records.Citizen;
 import agile18.demo.model.Records.Poll;

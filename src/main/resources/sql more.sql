@@ -15,4 +15,4 @@ CREATE TABLE CastedOpinion (
 CREATE TABLE SpecialRole (
     citizenId CHAR(10) REFERENCES Citizen(id),
     Role TEXT NOT NULL CHECK (Role IN ('Press Secretary')) -- Add the rest of the roles later e.g. 'Minister'
-)
+);

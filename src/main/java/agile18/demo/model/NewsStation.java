@@ -2,13 +2,13 @@ package agile18.demo.model;
 
 import org.springframework.stereotype.Service;
 
+import agile18.demo.model.Database.Database;
 import agile18.demo.model.Exceptions.NotLoggedInException;
-import agile18.demo.model.Records.Citizen;
-import agile18.demo.model.Records.NewsPost;
+import agile18.demo.model.Records.*;
+import java.util.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 @Service
 public class NewsStation {
