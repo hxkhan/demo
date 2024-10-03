@@ -635,3 +635,87 @@ UPDATE Poll SET favour = favour + 1; [42122-224]
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
+2024-10-03 16:38:48.335524+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "CREATE TABLE Poll (\000d\000a    id INT PRIMARY KEY,\000d\000a    creator TEXT REFERENCES Citizen(id)\000d\000a    -- home is where this poll was created (creator's region/municipality at the time of creation)\000d\000a    -- will also be very good for statistics later on\000d\000a    [*]home TEXT NOT NULL REFERENCES Municipality(name),\000d\000a\000d\000a    -- level decides if this will be a national, regional or municipal poll\000d\000a    level TEXT NOT NULL,\000d\000a    title TEXT NOT NULL,\000d\000a    body TEXT NOT NULL,\000d\000a    startDate DATE NOT NULL,\000d\000a    endDate DATE NOT NULL,\000d\000a\000d\000a    -- votes\000d\000a    blank INT NOT NULL CHECK (blank >= 0),\000d\000a    favor INT NOT NULL CHECK (favor >= 0),\000d\000a    against INT NOT NULL CHECK (against >= 0),\000d\000a\000d\000a    CHECK (level IN ('Municipal', 'Regional', 'National')),\000d\000a    CHECK (startDate < endDate)\000d\000a)"; expected "INDEX, ON, NOT DEFERRABLE, DEFERRABLE, CONSTRAINT, COMMENT, PRIMARY KEY, UNIQUE, NOT NULL, CHECK, REFERENCES, ,, )"; SQL statement:
+CREATE TABLE Poll (
+    id INT PRIMARY KEY,
+    creator TEXT REFERENCES Citizen(id)
+    -- home is where this poll was created (creator's region/municipality at the time of creation)
+    -- will also be very good for statistics later on
+    home TEXT NOT NULL REFERENCES Municipality(name),
+
+    -- level decides if this will be a national, regional or municipal poll
+    level TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    startDate DATE NOT NULL,
+    endDate DATE NOT NULL,
+
+    -- votes
+    blank INT NOT NULL CHECK (blank >= 0),
+    favor INT NOT NULL CHECK (favor >= 0),
+    against INT NOT NULL CHECK (against >= 0),
+
+    CHECK (level IN ('Municipal', 'Regional', 'National')),
+    CHECK (startDate < endDate)
+) [42001-224]
+2024-10-03 16:38:48.339680+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "POLL" not found; SQL statement:
+-- one vote per citizen/poll and there is no record of who voted what like the group decided; very safe very secure
+CREATE TABLE Casted [42102-224]
+2024-10-03 16:39:05.093098+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "CREATE TABLE Poll (\000d\000a    id INT PRIMARY KEY,\000d\000a    creator TEXT REFERENCES Citizen(id)\000d\000a    -- home is where this poll was created (creator's region/municipality at the time of creation)\000d\000a    -- will also be very good for statistics later on\000d\000a    [*]home TEXT NOT NULL REFERENCES Municipality(name),\000d\000a\000d\000a    -- level decides if this will be a national, regional or municipal poll\000d\000a    level TEXT NOT NULL,\000d\000a    title TEXT NOT NULL,\000d\000a    body TEXT NOT NULL,\000d\000a    startDate DATE NOT NULL,\000d\000a    endDate DATE NOT NULL,\000d\000a\000d\000a    -- votes\000d\000a    blank INT NOT NULL CHECK (blank >= 0),\000d\000a    favor INT NOT NULL CHECK (favor >= 0),\000d\000a    against INT NOT NULL CHECK (against >= 0),\000d\000a\000d\000a    CHECK (level IN ('Municipal', 'Regional', 'National')),\000d\000a    CHECK (startDate < endDate)\000d\000a)"; expected "INDEX, ON, NOT DEFERRABLE, DEFERRABLE, CONSTRAINT, COMMENT, PRIMARY KEY, UNIQUE, NOT NULL, CHECK, REFERENCES, ,, )"; SQL statement:
+CREATE TABLE Poll (
+    id INT PRIMARY KEY,
+    creator TEXT REFERENCES Citizen(id)
+    -- home is where this poll was created (creator's region/municipality at the time of creation)
+    -- will also be very good for statistics later on
+    home TEXT NOT NULL REFERENCES Municipality(name),
+
+    -- level decides if this will be a national, regional or municipal poll
+    level TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    startDate DATE NOT NULL,
+    endDate DATE NOT NULL,
+
+    -- votes
+    blank INT NOT NULL CHECK (blank >= 0),
+    favor INT NOT NULL CHECK (favor >= 0),
+    against INT NOT NULL CHECK (against >= 0),
+
+    CHECK (level IN ('Municipal', 'Regional', 'National')),
+    CHECK (startDate < endDate)
+) [42001-224]
+2024-10-03 16:39:05.095155+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "POLL" not found; SQL statement:
+-- one vote per citizen/poll and there is no record of who voted what like the group decided; very safe very secure
+CREATE TABLE Casted [42102-224]
+2024-10-03 16:40:12.470545+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "CREATE TABLE Poll (\000d\000a    id INT PRIMARY KEY,\000d\000a    creator CHAR(10) REFERENCES Citizen(id)\000d\000a    -- home is where this poll was created (creator's region/municipality at the time of creation)\000d\000a    -- will also be very good for statistics later on\000d\000a    [*]home TEXT NOT NULL REFERENCES Municipality(name),\000d\000a\000d\000a    -- level decides if this will be a national, regional or municipal poll\000d\000a    level TEXT NOT NULL,\000d\000a    title TEXT NOT NULL,\000d\000a    body TEXT NOT NULL,\000d\000a    startDate DATE NOT NULL,\000d\000a    endDate DATE NOT NULL,\000d\000a\000d\000a    -- votes\000d\000a    blank INT NOT NULL CHECK (blank >= 0),\000d\000a    favor INT NOT NULL CHECK (favor >= 0),\000d\000a    against INT NOT NULL CHECK (against >= 0),\000d\000a\000d\000a    CHECK (level IN ('Municipal', 'Regional', 'National')),\000d\000a    CHECK (startDate < endDate)\000d\000a)"; expected "INDEX, ON, NOT DEFERRABLE, DEFERRABLE, CONSTRAINT, COMMENT, PRIMARY KEY, UNIQUE, NOT NULL, CHECK, REFERENCES, ,, )"; SQL statement:
+CREATE TABLE Poll (
+    id INT PRIMARY KEY,
+    creator CHAR(10) REFERENCES Citizen(id)
+    -- home is where this poll was created (creator's region/municipality at the time of creation)
+    -- will also be very good for statistics later on
+    home TEXT NOT NULL REFERENCES Municipality(name),
+
+    -- level decides if this will be a national, regional or municipal poll
+    level TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    startDate DATE NOT NULL,
+    endDate DATE NOT NULL,
+
+    -- votes
+    blank INT NOT NULL CHECK (blank >= 0),
+    favor INT NOT NULL CHECK (favor >= 0),
+    against INT NOT NULL CHECK (against >= 0),
+
+    CHECK (level IN ('Municipal', 'Regional', 'National')),
+    CHECK (startDate < endDate)
+) [42001-224]
+2024-10-03 16:40:12.472653+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "POLL" not found; SQL statement:
+-- one vote per citizen/poll and there is no record of who voted what like the group decided; very safe very secure
+CREATE TABLE Casted [42102-224]

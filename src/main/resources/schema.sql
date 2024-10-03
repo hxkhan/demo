@@ -27,7 +27,7 @@ CREATE TABLE Citizen (
 
 CREATE TABLE Poll (
     id INT PRIMARY KEY,
-    
+    creator TEXT REFERENCES Citizen(id)
     -- home is where this poll was created (creator's region/municipality at the time of creation)
     -- will also be very good for statistics later on
     home TEXT NOT NULL REFERENCES Municipality(name),
@@ -54,7 +54,7 @@ CREATE TABLE Casted (
     poll INT REFERENCES Poll(id),
 
     PRIMARY KEY (voter, poll)
-)
+);
 
 /* A voting procedure in Database.java would be two updates in a single transaction
 
