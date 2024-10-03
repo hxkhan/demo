@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import agile18.Utils;
 import agile18.demo.model.Records.Citizen;
 import agile18.demo.model.Records.MuniRegion;
+import agile18.demo.model.Records.NewsPost;
 import agile18.demo.model.Records.Poll;
 
 /*
@@ -170,4 +171,32 @@ public class Database {
         // vote
         jdbc.execute(sql);
     }
+
+
+    // ROLES
+    // implement roles during sat/sun
+
+
+    // NEWS------------------------------
+    public int postNews(String title, String body, String date) {
+        int id = jdbc.queryForObject("SELECT COUNT(*) FROM News;", Integer.class);
+
+        String values = Utils.sqlValues(id, title, body, date);
+        String sql = "INSERT INTO News VALUES (" + values + ");";
+        jdbc.execute(sql);
+        return id;
+    }
+
+    public List<NewsPost> getAllNews() {
+        String sql = "SELECT * FROM News;";
+
+        return jdbc.query(sql, (r, rowNum) -> {
+            return new NewsPost(
+                r.getString("title"),
+                r.getString("body"),
+                r.getString("date")
+            );
+        });
+    }
+
 }
