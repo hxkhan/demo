@@ -90,12 +90,13 @@ public class Database {
 
     // --------------------- Polls ---------------------
     public List<Poll> getAllPolls() {
-        String sql = "SELECT id, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+ 
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+ 
             "FROM Poll p JOIN Municipality m ON p.home = m.name;";
 
         return jdbc.query(sql, (r, rowNum) -> {
             return new Poll(
                 r.getInt("id"),
+                r.getString("creator"),
                 new MuniRegion(r.getString("municipality"), r.getString("region")),
                 LevelEnum.valueOf(r.getString("level")),
                 r.getString("title"),
@@ -110,12 +111,13 @@ public class Database {
     }
 
     public Poll getPollWithID(int id) {
-        String sql = "SELECT id, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+ 
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+ 
             "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE id = " + id + ";";
 
         var list = jdbc.query(sql, (r, rowNum) -> {
             return new Poll(
                 r.getInt("id"),
+                r.getString("creator"),
                 new MuniRegion(r.getString("municipality"), r.getString("region")),
                 LevelEnum.valueOf(r.getString("level")),
                 r.getString("title"),
@@ -134,7 +136,7 @@ public class Database {
 
     public int createPoll(Citizen creator, LevelEnum level, String title, String body, String startDate, String endDate) {
         int id = jdbc.queryForObject("SELECT COUNT(*) FROM Poll;", Integer.class);
-        String values = Utils.sqlValues(id, creator.home().municipality(), level.toString(), title, body, startDate, endDate, 0, 0, 0);
+        String values = Utils.sqlValues(id, creator.id(), creator.home().municipality(), level.toString(), title, body, startDate, endDate, 0, 0, 0);
         String sql = "INSERT INTO Poll VALUES (" + values + ");";
         jdbc.execute(sql);
         return id;
