@@ -36,7 +36,7 @@ public class PollBrowser {
         List<Poll> munPolls = new ArrayList<>();
 
         for (Poll p : allPolls) {
-            if (p.home().municipality().equals(muniregi.municipality()) && isPollDateInRange(p, pollEnum)) {
+            if (p.home().equals(muniregi) && isPollDateInRange(p, pollEnum)) {
                 munPolls.add(p);
             }
         }
