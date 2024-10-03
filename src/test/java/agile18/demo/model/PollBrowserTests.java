@@ -26,12 +26,61 @@ public class PollBrowserTests {
         MuniRegion göteVgöta = new MuniRegion("Göteborg", "Västra Götaland");
         pb = new PollBrowser(db);
         List<Poll> test = pb.getMunPolls(göteVgöta);
-        Poll poll = new Poll(1, new MuniRegion("Göteborg","Västra Götaland"), 
+        Poll poll = new Poll(1, "0311261111",new MuniRegion("Göteborg","Västra Götaland"), 
                 LevelEnum.Regional, "Dance prohibition!", "Please no dancing!", 
                 "2024-10-01", "2024-10-07",0, 0, 0);
         List<Poll> expected = Arrays.asList(poll);
         assertEquals(test, expected);
 	}
+    @Test
+    void testGetPollsByCitizen1(){
+        pb = new PollBrowser(db);
+        List<Poll> polls = pb.getPollsByCitizen(db.getCitizenWithPersonNumber("0311261111"));
+        assertEquals(polls.get(0).id(),1);
+        assertEquals(polls.get(1).id(),2);
+    }
+    @Test
+    void testGetPollsByCitizen2(){
+        pb = new PollBrowser(db);
+        List<Poll> polls = pb.getPollsByCitizen(db.getCitizenWithPersonNumber("0305251111"),PollEnum.Active);
+        assertEquals(polls.size(), 0);
+
+        polls = pb.getPollsByCitizen(db.getCitizenWithPersonNumber("0305251111"),PollEnum.Finished);
+        assertEquals(polls.get(0).id(),0);
+        assertEquals(polls.size(),1);
+    }
+
+    @Test
+    void testGetVotedPolls1() {
+        pb = new PollBrowser(db);
+        List<Poll> polls = pb.getVotedPolls(db.getCitizenWithPersonNumber("0311261111"));
+
+        assertEquals(polls.get(0).id(), 1);
+        assertEquals(polls.get(1).id(), 2);
+    }
+    @Test
+    void testGetVotedPolls2() {
+        pb = new PollBrowser(db);
+        List<Poll> polls = pb.getVotedPolls(db.getCitizenWithPersonNumber("0311261111"),PollEnum.Active);
+
+        assertEquals(polls.get(0).id(), 1);
+        assertEquals(polls.get(1).id(), 2);
+    }
+    @Test
+    void testGetVotedPolls3() {
+        pb = new PollBrowser(db);
+        List<Poll> polls = pb.getVotedPolls(db.getCitizenWithPersonNumber("0311261111"),LevelEnum.Regional);
+
+        assertEquals(polls.get(0).id(), 1);
+        assertEquals(polls.size(), 1);
+    }
+
+    @Test
+    void testGetVotedPolls4() {
+        pb = new PollBrowser(db);
+        List<Poll> polls = pb.getVotedPolls(db.getCitizenWithPersonNumber("0311261111"), PollEnum.Finished, LevelEnum.Regional);        
+        assertEquals(polls.size(), 0);
+    }
 
     @BeforeEach
     public void setUp() {
