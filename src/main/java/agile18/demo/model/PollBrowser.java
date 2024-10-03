@@ -5,10 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import agile18.demo.model.Exceptions.PollDoesNotExistException;
-import agile18.demo.model.Records.*;
+import agile18.demo.model.Records.Citizen;
+import agile18.demo.model.Records.MuniRegion;
+import agile18.demo.model.Records.Poll;
+
 
 public class PollBrowser {
     private final Database db;
@@ -27,23 +29,14 @@ public class PollBrowser {
     }
     // --
     public List<Poll> getMunPolls(MuniRegion muniregi) {
-        return getMunPolls(muniregi, PollEnum.NonFinished);
+        return getMunPolls(muniregi, null);
     }
     public List<Poll> getMunPolls(MuniRegion muniregi, PollEnum pollEnum) {
         List<Poll> allPolls = db.getAllPolls();
         List<Poll> munPolls = new ArrayList<>();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        Date start;
-        Date end;
 
         for (Poll p : allPolls) {
-            try {
-                start = df.parse(p.startDate());
-                end = df.parse(p.endDate());
-            } catch (Exception e) {
-                continue;
-            }
-            if (p.home().municipality().equals(muniregi.municipality()) && isPollDateInRange(start, end, pollEnum)) {
+            if (p.home().municipality().equals(muniregi.municipality()) && isPollDateInRange(p, pollEnum)) {
                 munPolls.add(p);
             }
         }
@@ -55,22 +48,45 @@ public class PollBrowser {
     public List<Poll> getRegPolls(MuniRegion muniregi, PollEnum pollEnum) {
         List<Poll> allPolls = db.getAllPolls();
         List<Poll> regPolls = new ArrayList<>();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        Date start;
-        Date end;
         for (Poll p : allPolls) {
-            try {
-                start = df.parse(p.startDate());
-                end = df.parse(p.endDate());
-            } catch (Exception e) {
-                continue;
-            }
-            if (p.home().region().equals(muniregi.region()) && isPollDateInRange(start, end, pollEnum)) {
+            if (p.home().region().equals(muniregi.region()) && isPollDateInRange(p, pollEnum)) {
                 regPolls.add(p);
             }
         }
         return regPolls;
     }
+
+    // Method for filtering polls for the national level 
+    public List<Poll> getNatPolls(){
+        return getNatPolls(null);
+    }
+    public List<Poll> getNatPolls(PollEnum pe){
+        List<Poll> allPolls = db.getAllPolls(); 
+        List<Poll> natPolls = new ArrayList<>();
+        for (Poll poll : allPolls){
+            if (poll.level() == LevelEnum.National && isPollDateInRange(poll, pe)){
+                natPolls.add(poll);
+            }
+        }
+        return natPolls;
+    }
+
+    // Method for filtering polls created by a specific citizen
+    public List<Poll> getPollsByCitizen(Citizen c){
+        return getPollsByCitizen(c, null);
+    }
+    public List<Poll> getPollsByCitizen(Citizen c, PollEnum pe) {
+        List<Poll> allPolls = db.getAllPolls(); 
+        List<Poll> citizenPolls = new ArrayList<>();
+
+        for (Poll poll : allPolls) {
+            if (poll.creator().equals(c.id()) && isPollDateInRange(poll, pe)) { 
+                citizenPolls.add(poll);
+            }
+        }
+        return citizenPolls;
+    }
+
 
     /**
      * Return a list of polls that a given citizen is eligible to vote for.
@@ -186,28 +202,6 @@ public class PollBrowser {
 
 
     // ----- HELPERS -----
-    private static boolean isPollDateInRange(Date start, Date end, PollEnum ps){
-        Date today = new Date();
-        boolean inRange = false;
-        switch (ps) {
-            case Finished:
-                if (today.after(end)) inRange = true;
-                break;
-            case NonFinished:
-                if (end.after(today) || end.equals(today)) inRange = true;
-                break;
-            case Active:
-                if ((end.after(today) || end.equals(today))
-                &&  (start.equals(today) || start.before(today))) inRange = true;
-                break;
-            case Future:
-                if (start.after(today)) inRange = true;
-                break;
-            default: inRange = false;
-        }
-        return inRange;
-    }
-
     private boolean isCitizenEligible(Citizen c, Poll p) {
         if (db.hasCast(c, p.id()))
             return false;
@@ -256,7 +250,7 @@ public class PollBrowser {
 
         Date today = new Date();
         String start = p.startDate();
-        String end = p.startDate();
+        String end = p.endDate();
 
         if(sdf.parse(end).before(today))
             return PollEnum.Finished;
