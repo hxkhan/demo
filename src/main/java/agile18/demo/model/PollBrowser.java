@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import agile18.demo.model.Exceptions.PollDoesNotExistException;
 import agile18.demo.model.Records.Citizen;
 import agile18.demo.model.Records.MuniRegion;
 import agile18.demo.model.Records.Poll;
 
 
+@Service
 public class PollBrowser {
     private final Database db;
 
