@@ -185,13 +185,21 @@ public class Database {
     }
 
     public List<NewsPost> getAllNews() {
-        String sql = "SELECT * FROM News;";
+        String sql = "SELECT n.title, n.body, n.date, " +
+                 "SUM(CASE WHEN co.favorable THEN 1 ELSE 0 END) AS favorable, " +
+                 "SUM(CASE WHEN NOT co.favorable THEN 1 ELSE 0 END) AS unfavorable " +
+                 "FROM News n " +
+                 "LEFT JOIN CastedOpinion co ON n.id = co.newsId " +
+                 "GROUP BY n.id " +
+                 "ORDER BY n.date DESC;";
 
         return jdbc.query(sql, (r, rowNum) -> {
             return new NewsPost(
                 r.getString("title"),
                 r.getString("body"),
-                r.getString("date")
+                r.getString("date"),
+                r.getInt("favorable"),
+                r.getInt("unfavorable")
             );
         });
     }

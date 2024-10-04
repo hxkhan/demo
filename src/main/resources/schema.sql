@@ -4,6 +4,9 @@ DROP TABLE IF EXISTS Poll CASCADE;
 DROP TABLE IF EXISTS Citizen CASCADE;
 DROP TABLE IF EXISTS Municipality CASCADE;
 DROP TABLE IF EXISTS Region CASCADE;
+DROP TABLE IF EXISTS News CASCADE;
+DROP TABLE IF EXISTS CastedOpinion CASCADE;
+DROP TABLE IF EXISTS SpecialRole CASCADE;
 
 -- INIT
 CREATE TABLE Region (
@@ -65,3 +68,25 @@ CREATE TABLE Casted (
 
 */
 
+
+
+-- NEWS
+
+CREATE TABLE News (
+    id INT PRIMARY KEY,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    date DATETIME NOT NULL
+);
+
+CREATE TABLE CastedOpinion (
+    newsId INT REFERENCES News(id),
+    citizenId CHAR(10) REFERENCES Citizen(id),
+    favorable BOOLEAN NOT NULL,
+    PRIMARY KEY(newsId, citizenId)
+);
+
+CREATE TABLE SpecialRole (
+    citizenId CHAR(10) REFERENCES Citizen(id),
+    Role TEXT NOT NULL CHECK (Role IN ('Press Secretary')) -- Add the rest of the roles later e.g. 'Minister'
+);

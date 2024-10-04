@@ -21,9 +21,9 @@ public class NewsStation {
     }
 
     public void postNews(UUID accessToken, String title, String body) throws NotLoggedInException {
-        Citizen c = ob.checkLogin(accessToken);
+        ob.checkLogin(accessToken);
         LocalDateTime cdt = LocalDateTime.now();
-        String date = cdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String date = cdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         db.postNews(title, body, date);
     }
 
