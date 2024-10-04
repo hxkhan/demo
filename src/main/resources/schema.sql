@@ -1,9 +1,9 @@
 -- TO RESET EVERYTHING
-DROP TABLE IF EXISTS Casted;
-DROP TABLE IF EXISTS Poll;
-DROP TABLE IF EXISTS Citizen;
-DROP TABLE IF EXISTS Municipality;
-DROP TABLE IF EXISTS Region;
+DROP TABLE IF EXISTS Casted CASCADE;
+DROP TABLE IF EXISTS Poll CASCADE;
+DROP TABLE IF EXISTS Citizen CASCADE;
+DROP TABLE IF EXISTS Municipality CASCADE;
+DROP TABLE IF EXISTS Region CASCADE;
 
 -- INIT
 CREATE TABLE Region (
@@ -27,7 +27,7 @@ CREATE TABLE Citizen (
 
 CREATE TABLE Poll (
     id INT PRIMARY KEY,
-    creator TEXT REFERENCES Citizen(id)
+    creator TEXT REFERENCES Citizen(id),
     -- home is where this poll was created (creator's region/municipality at the time of creation)
     -- will also be very good for statistics later on
     home TEXT NOT NULL REFERENCES Municipality(name),
