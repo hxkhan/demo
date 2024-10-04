@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Democracy Now - Create proposal</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <!-- Navigation Script -->
+    <script type="module">
+        if (!localStorage.uuid) window.location.replace("/login.html");
+
+        var response = await(await fetch('/check-login-status?uuid=' + localStorage.uuid)).json();
+        if (response.success == false) {
+            localStorage.clear();
+            window.location.replace("/login.html");
+        } else {
+            localStorage.user = JSON.stringify(response.data);
+        }
+    </script>
+
+    <!-- Alpine JavaScript -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header class="rubik">
+        <div class="inner">
+            <a class="header-title" href="/">Democracy Now</a>
+            <div class="desktop-header-links">
+                <a class="header-link" data-bs-toggle="modal" data-bs-target="#create-poll-modal">Create Poll</a>
+                <a class="header-link header-link2"
+                    onclick="localStorage.clear(); window.location.replace('/login.html');">Logout</a>
+            </div>
+            <div class="dropdown text-end mobile-header-nav">
+                <a href="#" class="d-block link-body-emphasis text-decoration-none" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <svg id="burger-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#FFFFFF"
+                        class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+                    </svg>
+                </a>
+                <ul class="dropdown-menu text-small">
+                    <li class="dropdown-item-mobile"><a class="dropdown-item" data-bs-toggle="modal"
+                            data-bs-target="#create-poll-modal">Create Poll</a></li>
+                    <!-- <li class="dropdown-item-mobile"><a class="dropdown-item" href="register.html">Register</a></li> -->
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!--Create Modal-->
+    <div class="modal fade" id="create-poll-modal" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content sft" x-data="{ title:'', body:'', level: '', startDate:'', endDate:'' }"
+                x-init="$watch('startDate', value => endDateInput.min = startDate.split('T')[0])">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Poll</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Level</label>
+                    <select class="form-select mb-3" x-model="level">
+                        <option hidden value="">Choose</option>
+                        <option>National</option>
+                        <option>Regional</option>
+                        <option>Municipal</option>
+                    </select>
+
+                    <!-- title input -->
+                    <label class="form-label">Title</label>
+                    <div class="form-group mb-4">
+                        <input type="text" x-model="title" class="form-control" placeholder="A very good">
+                    </div>
+
+                    <!-- body input -->
+                    <label class="form-label">Body</label>
+                    <div class="form-group mb-4">
+                        <textarea type="text" x-model="body" class="form-control"
+                            placeholder="This is a description of the poll..." rows="6"></textarea>
+                    </div>
+
+                    <label class="form-label">Start Date</label>
+                    <input class="form-control mb-4" type="date" id="startDateInput" x-model="startDate">
+
+                    <label class="form-label">End Date</label>
+                    <input class="form-control mb-4" type="date" id="endDateInput" x-model="endDate"
+                        :disabled="startDate == ''">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="createPoll($data);"
+                        :disabled="title == '' || body == '' || level == '' || startDate == '' || endDate == ''">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--View Modal-->
+    <div class="modal fade" id="view-poll-modal" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content sft">
+                <div class="modal-header">
+                    <h5 class="modal-title">View Poll</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Level</label>
+                    <input class="form-control mb-3" id="view-poll-level" disabled>
+
+                    <!-- title input -->
+                    <label class="form-label">Title</label>
+                    <div class="form-group mb-4">
+                        <input type="text" x-model="title" class="form-control" id="view-poll-title" disabled>
+                    </div>
+
+                    <!-- body input -->
+                    <label class="form-label">Body</label>
+                    <div class="form-group mb-4">
+                        <textarea type="text" x-model="body" class="form-control" rows="6" id="view-poll-body"
+                        disabled></textarea>
+                    </div>
+                    
+                    <label class="form-label">Start Date & End Date</label>
+                    <div class="input-group mb-4">
+                        <input type="date" class="form-control" id="view-poll-start-date" disabled>
+                        <input type="date" class="form-control" id="view-poll-end-date" disabled>
+                    </div>
+                    
+                    <label class="form-label">Against & Blank & Favor</label>
+                    <div class="input-group mb-4">
+                        <input type="number" class="form-control" id="view-poll-against" disabled>
+                        <input type="number" class="form-control" id="view-poll-blank" disabled>
+                        <input type="number" class="form-control" id="view-poll-favor" disabled>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" @click="votePoll('Against')">Vote No</button>
+                    <button type="button" class="btn btn-primary" @click="votePoll('Blank')">Vote Blank</button>
+                    <button type="button" class="btn btn-success" @click="votePoll('Favor')">Vote Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Polls -->
+    <div class="polls-list sft rounded-box-shadow" x-data="{ status: 'Active', level: 'National' }">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-3">Polls</h2>
+            <div class="d-flex gap-2">
+                <select class="form-select mb-3" style="max-width: 140px;">
+                    <option>Active</option>
+                    <option>Past</option>
+                    <option>Future</option>
+                </select>
+                <select class="form-select mb-3" style="max-width: 140px;">
+                    <option>National</option>
+                    <option>Regional</option>
+                    <option>Municipal</option>
+                </select>
+            </div>
+        </div>
+        <div class="list-group sft w-auto" id="pollsList">
+        </div>
+    </div>
+
+    <!--Script for display-->
+    <script>
+        startDateInput.min = new Date().toISOString().split("T")[0];
+        var polls = [];
+
+        function createPoll({ level, title, body, startDate, endDate }) {
+            fetch(`/create-poll?uuid=${localStorage.uuid}`, {
+                method: "POST",
+                body: JSON.stringify({
+                    title: title,
+                    body: body,
+                    level: level,
+                    startDate: startDate,
+                    endDate: endDate
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((response) => response.json()).then((data) => {
+                console.log(data);
+                if (data.success == false) {
+                    return;
+                }
+            });
+        };
+
+        fetch('/national-polls', {
+            method: "GET",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        }).then((response) => response.json()).then((data) => {
+            polls = data;
+            for (const index in data) {
+                var poll = data[index];
+                var pills = `<span class="badge rounded-pill bg-primary" style="position: absolute; bottom: 5px; right: 5px;">Voted</span>`;
+                var pollText = `<a onclick="openPoll(${poll.id})" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="rgb(0, 104, 161)"
+                    class="bi bi-bank flex-shrink-0" viewBox="0 0 16 16">
+                    <path
+                    d="m8 0 6.61 3h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.38l.5 2a.498.498 0 0 1-.485.62H.5a.498.498 0 0 1-.485-.62l.5-2A.5.5 0 0 1 1 13V6H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 3h.89zM3.777 3h8.447L8 1zM2 6v7h1V6zm2 0v7h2.5V6zm3.5 0v7h1V6zm2 0v7H12V6zM13 6v7h1V6zm2-1V4H1v1zm-.39 9H1.39l-.25 1h13.72z" />
+                    </svg>
+                    <div class="d-flex gap-2 w-100 justify-content-between">
+                        <div>
+                            <h6 class="mb-0">${poll.title}</h6>
+                            <p class="mb-0 opacity-75">${poll.body}</p>
+                            </div>
+                            <small class="opacity-50 text-nowrap">Ends on: ${poll.endDate}</small>
+                            </div>
+                            ${pills}
+                            </a>`;
+
+                pollsList.innerHTML += pollText;
+            }
+        });
+
+        var viewPollModal = new bootstrap.Modal(document.getElementById('view-poll-modal'));
+        var selectedPoll = null;
+        function openPoll(id) {
+            selectedPoll = id;
+            for (const poll of polls) {
+                if (poll.id != id) continue;
+                document.getElementById('view-poll-level').value = poll.level;
+                document.getElementById('view-poll-title').value = poll.title;
+                document.getElementById('view-poll-body').value = poll.body;
+                document.getElementById('view-poll-start-date').value = poll.startDate;
+                document.getElementById('view-poll-end-date').value = poll.endDate;
+                document.getElementById('view-poll-against').value = poll.against;
+                document.getElementById('view-poll-blank').value = poll.blank;
+                document.getElementById('view-poll-favor').value = poll.favor;
+                viewPollModal.show();
+            }
+        }
+
+        function votePoll(choice) {
+            if (selectedPoll != null) {
+
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -75,10 +75,19 @@ header>.inner {
     padding: 50px;
 }
 
-.logreg-box,
-.logreg-box input,
-.logreg-box button {
+.sft, .sft input, .sft select, .sft button, .sft textarea  {
+    font-family: "Rubik";
     font-size: 19px;
+}
+
+.modal-title {
+    font-size: 24px;
+}
+
+.polls-list {
+    width: min(1400px, 90%);
+    margin: 25px auto;
+    padding: 25px;
 }
 
 @media screen and (max-width: 756px) {
@@ -108,9 +117,8 @@ header>.inner {
         font-size: 25px;
     }
 
-    .logreg-box,
-    .logreg-box input,
-    .logreg-box button {
+    .sft, .sft input, .sft select  {
+        font-family: "Rubik";
         font-size: 16px;
     }
 }
@@ -124,6 +132,10 @@ header>.inner {
     height: 1px;
     max-width: 1400px;
     margin: 0 auto;
+}
+
+.bg-primary {
+    background-color: rgb(0, 104, 161);
 }
 
 .btn-primary {

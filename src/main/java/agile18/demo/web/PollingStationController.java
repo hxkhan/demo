@@ -104,8 +104,7 @@ public class PollingStationController {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
-                    "data", pb.getMunPolls(c.home())
-                );
+                    "data", pb.getMunPolls(c.home()));
         } catch (IllegalArgumentException e) {
             return Map.of(
                     "success", false,
@@ -123,8 +122,7 @@ public class PollingStationController {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
-                    "data", pb.getRegPolls(c.home())
-                );
+                    "data", pb.getRegPolls(c.home()));
         } catch (IllegalArgumentException e) {
             return Map.of(
                     "success", false,
@@ -134,6 +132,11 @@ public class PollingStationController {
                     "success", false,
                     "message", "not logged in");
         }
+    }
+
+    @GetMapping("/national-polls")
+    public List<Poll> onGetNationalPolls(@RequestParam(defaultValue = "active") String status) {
+        return pb.getNatPolls();
     }
 
     @GetMapping("/poll")

@@ -11,13 +11,13 @@ import agile18.demo.model.Exceptions.*;
 import agile18.demo.model.Records.Citizen;
 import agile18.Utils;
 
-// Controller for onboarding processes of users, both new and for login of already existing users
+// Controller for ob processes of users, both new and for login of already existing users
 @RestController
 public class OnboardingController {
-    private final Onboarder onboarding;
+    private final Onboarder ob;
 
     public OnboardingController(Onboarder ob) {
-        this.onboarding = ob;
+        this.ob = ob;
     }
 
     @PostMapping("/login")
@@ -30,7 +30,7 @@ public class OnboardingController {
         }
 
         try {
-            UUID uuid = onboarding.login(body.id(), body.password());
+            UUID uuid = ob.login(body.id(), body.password());
             return Map.of(
                 "success", true,
                 "uuid", uuid.toString()
@@ -59,7 +59,7 @@ public class OnboardingController {
         }
 
         try {
-            UUID uuid = onboarding.register(body.firstName(), body.lastName(), body.id(), body.password(), body.municipality());
+            UUID uuid = ob.register(body.firstName(), body.lastName(), body.id(), body.password(), body.municipality());
             return Map.of(
                 "success", true,
                 "uuid", uuid.toString()
@@ -77,10 +77,28 @@ public class OnboardingController {
         }
     }
 
+    @GetMapping("/check-login-status")
+    public Map<String, Object> onGetLoginStatus(@RequestParam String uuid) {
+        try {
+            Citizen c = ob.checkLogin(UUID.fromString(uuid));
+            return Map.of(
+                    "success", true,
+                    "data", c);
+        } catch (IllegalArgumentException e) {
+            return Map.of(
+                    "success", false,
+                    "message", "invalid uuid");
+        } catch (NotLoggedInException e) {
+            return Map.of(
+                    "success", false,
+                    "message", "not logged in");
+        }
+    }
+
     // exists for debugging purposes
     @GetMapping("/citizens")
     public List<Citizen> onGetUser() {
-        return onboarding.getAllCitizens();
+        return ob.getAllCitizens();
     }
 }
 
