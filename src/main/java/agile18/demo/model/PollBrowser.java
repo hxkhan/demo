@@ -33,25 +33,19 @@ public class PollBrowser {
     public List<Poll> getMunPolls(MuniRegion muniregi) {
         return getMunPolls(muniregi, null);
     }
-    public List<Poll> getMunPolls(MuniRegion muniregi, PollEnum pollEnum) {
-        List<Poll> allPolls = db.getAllPolls();
-        List<Poll> munPolls = new ArrayList<>();
+    public List<Poll> getMunPolls(MuniRegion muniregi, PollStatusEnum pollStatusEnum) {
 
-        for (Poll p : allPolls) {
-            if (p.home().equals(muniregi) && isPollDateInRange(p, pollEnum)) {
-                munPolls.add(p);
-            }
-        }
-        return munPolls;
+
+        return db.getMuniPolls(muniregi.municipality(), pollStatusEnum);
     }
     public List<Poll> getRegPolls(MuniRegion muniregi) {
-        return getRegPolls(muniregi, PollEnum.NonFinished);
+        return getRegPolls(muniregi, PollStatusEnum.NotPassed);
     }
-    public List<Poll> getRegPolls(MuniRegion muniregi, PollEnum pollEnum) {
+    public List<Poll> getRegPolls(MuniRegion muniregi, PollStatusEnum pollStatusEnum) {
         List<Poll> allPolls = db.getAllPolls();
         List<Poll> regPolls = new ArrayList<>();
         for (Poll p : allPolls) {
-            if (p.home().region().equals(muniregi.region()) && isPollDateInRange(p, pollEnum)) {
+            if (p.home().region().equals(muniregi.region()) && isPollDateInRange(p, pollStatusEnum)) {
                 regPolls.add(p);
             }
         }
@@ -61,7 +55,7 @@ public class PollBrowser {
     public List<Poll> getNatPolls() {
         return getNatPolls(null);
     }
-    public List<Poll> getNatPolls(PollEnum pe){
+    public List<Poll> getNatPolls(PollStatusEnum pe){
         List<Poll> allPolls = db.getAllPolls(); 
         List<Poll> natPolls = new ArrayList<>();
         for (Poll poll : allPolls){
@@ -77,7 +71,7 @@ public class PollBrowser {
         return getPollsByCitizen(c, null);
     }
     
-    public List<Poll> getPollsByCitizen(Citizen c, PollEnum pe) {
+    public List<Poll> getPollsByCitizen(Citizen c, PollStatusEnum pe) {
         List<Poll> allPolls = db.getAllPolls(); 
         List<Poll> citizenPolls = new ArrayList<>();
 
@@ -106,7 +100,7 @@ public class PollBrowser {
      * @param s any polls without this status is filtered out, null value filters nothing.
      * @return a list of polls.
      */
-    public List<Poll> getEligiblePolls(Citizen c, PollEnum s) {
+    public List<Poll> getEligiblePolls(Citizen c, PollStatusEnum s) {
         return getEligiblePolls(c, s, null);
     }
 
@@ -129,7 +123,7 @@ public class PollBrowser {
      * @param l any polls not on this level is filtered out, null value filters nothing.
      * @return a list of polls.
      */
-    public List<Poll> getEligiblePolls(Citizen c, PollEnum s, LevelEnum l){
+    public List<Poll> getEligiblePolls(Citizen c, PollStatusEnum s, LevelEnum l){
         List<Poll> polls = db.getAllPolls();
 
         int i = 0;
@@ -162,7 +156,7 @@ public class PollBrowser {
      * @param s any polls without this status is filtered out, null value filters nothing.
      * @return a list of polls.
      */
-    public List<Poll> getVotedPolls(Citizen c, PollEnum s){
+    public List<Poll> getVotedPolls(Citizen c, PollStatusEnum s){
         return getVotedPolls(c, s, null);
     }
 
@@ -185,7 +179,7 @@ public class PollBrowser {
      * @param l any polls not on this level is filtered out, null value filters nothing.
      * @return a list of polls.
      */
-    public List<Poll> getVotedPolls(Citizen c, PollEnum s, LevelEnum l){
+    public List<Poll> getVotedPolls(Citizen c, PollStatusEnum s, LevelEnum l){
         List<Poll> polls = db.getAllPolls();
 
         int i = 0;
@@ -224,8 +218,8 @@ public class PollBrowser {
         return l == null || p.level() == l;
     }
 
-    private boolean isPollDateInRange(Poll p, PollEnum s) {
-        PollEnum _s;
+    private boolean isPollDateInRange(Poll p, PollStatusEnum s) {
+        PollStatusEnum _s;
 
         try {
             _s = getPollStatus(p);
@@ -235,19 +229,19 @@ public class PollBrowser {
 
         if (s == null)
             return true;
-        if (s == PollEnum.Finished && _s == PollEnum.Finished)
+        if (s == PollStatusEnum.Passed && _s == PollStatusEnum.Passed)
             return true;
-        if (s == PollEnum.Future && _s == PollEnum.Future)
+        if (s == PollStatusEnum.Future && _s == PollStatusEnum.Future)
             return true;
-        if (s == PollEnum.Active && _s == PollEnum.Active)
+        if (s == PollStatusEnum.Active && _s == PollStatusEnum.Active)
             return true;
-        if (s == PollEnum.NonFinished && (_s == PollEnum.Active || _s == PollEnum.Future))
+        if (s == PollStatusEnum.NotPassed && (_s == PollStatusEnum.Active || _s == PollStatusEnum.Future))
             return true;
 
         return false;
     }
 
-    private PollEnum getPollStatus(Poll p) throws ParseException {
+    private PollStatusEnum getPollStatus(Poll p) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         Date today = new Date();
@@ -255,12 +249,12 @@ public class PollBrowser {
         String end = p.endDate();
 
         if(sdf.parse(end).before(today))
-            return PollEnum.Finished;
+            return PollStatusEnum.Passed;
 
         if (sdf.parse(start).after(today))
-            return PollEnum.Future;
+            return PollStatusEnum.Future;
 
-        return PollEnum.Active;
+        return PollStatusEnum.Active;
     }
     
 }

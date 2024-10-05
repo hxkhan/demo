@@ -43,10 +43,10 @@ public class PollBrowserTests {
     @Test
     void testGetPollsByCitizen2(){
         pb = new PollBrowser(db);
-        List<Poll> polls = pb.getPollsByCitizen(db.getCitizenWithPersonNumber("0305251111"),PollEnum.Active);
+        List<Poll> polls = pb.getPollsByCitizen(db.getCitizenWithPersonNumber("0305251111"), PollStatusEnum.Active);
         assertEquals(polls.size(), 0);
 
-        polls = pb.getPollsByCitizen(db.getCitizenWithPersonNumber("0305251111"),PollEnum.Finished);
+        polls = pb.getPollsByCitizen(db.getCitizenWithPersonNumber("0305251111"), PollStatusEnum.Passed);
         assertEquals(polls.get(0).id(),0);
         assertEquals(polls.size(),1);
     }
@@ -62,7 +62,7 @@ public class PollBrowserTests {
     @Test
     void testGetVotedPolls2() {
         pb = new PollBrowser(db);
-        List<Poll> polls = pb.getVotedPolls(db.getCitizenWithPersonNumber("0311261111"),PollEnum.Active);
+        List<Poll> polls = pb.getVotedPolls(db.getCitizenWithPersonNumber("0311261111"), PollStatusEnum.Active);
 
         assertEquals(polls.get(0).id(), 1);
         assertEquals(polls.get(1).id(), 2);
@@ -79,7 +79,7 @@ public class PollBrowserTests {
     @Test
     void testGetVotedPolls4() {
         pb = new PollBrowser(db);
-        List<Poll> polls = pb.getVotedPolls(db.getCitizenWithPersonNumber("0311261111"), PollEnum.Finished, LevelEnum.Regional);        
+        List<Poll> polls = pb.getVotedPolls(db.getCitizenWithPersonNumber("0311261111"), PollStatusEnum.Passed, LevelEnum.Regional);
         assertEquals(polls.size(), 0);
     }
 
