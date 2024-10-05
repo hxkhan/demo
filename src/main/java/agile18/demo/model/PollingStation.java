@@ -6,7 +6,10 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import agile18.demo.model.Database.Database;
-import agile18.demo.model.Exceptions.*;
+import agile18.demo.model.Exceptions.CitizenHasAlreadyCastedException;
+import agile18.demo.model.Exceptions.NotLoggedInException;
+import agile18.demo.model.Exceptions.PollDoesNotExistException;
+import agile18.demo.model.Exceptions.UnAuthorisedToVote;
 import agile18.demo.model.Records.Citizen;
 import agile18.demo.model.Records.Poll;
 
@@ -30,7 +33,7 @@ public class PollingStation {
     }
 
     public List<Poll> getAllPolls() {
-        return db.getAllPolls();
+        return db.getAllPolls(PollStatusEnum.All);
     }
 
     public void castVote(UUID accessToken, int pollID, VoteEnum vote) 

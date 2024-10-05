@@ -2,8 +2,7 @@ package agile18.demo.model;
 
 public enum PollStatusEnum {
     All,
-    Passed,
+    Past,
     Active,
-    Future,
-    NotPassed
+    Future
 }

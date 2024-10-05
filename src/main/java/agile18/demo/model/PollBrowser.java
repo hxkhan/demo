@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import agile18.demo.model.Database.Database;
 import agile18.demo.model.Exceptions.PollDoesNotExistException;
-import agile18.demo.model.Records.*;
+import agile18.demo.model.Records.Citizen;
+import agile18.demo.model.Records.MuniRegion;
+import agile18.demo.model.Records.Poll;
 
 
 @Service
@@ -26,27 +28,33 @@ public class PollBrowser {
         return db.getPollWithID(id);
     }
 
-    public List<Poll> getAllPolls() {
-        return db.getAllPolls();
+    public List<Poll> getAllPolls(PollStatusEnum ps) {
+        return db.getAllPolls(ps);
     }
     // --
 
+    public List<Poll> getMunPolls(MuniRegion mr, PollStatusEnum ps) {
+        List<Poll> polls = db.getMuniPolls(mr.municipality(),ps);
+        polls.removeIf(p -> !p.home().equals(mr) || !isPollDateInRange(p, ps));
+        return polls;
+    }
 
-    public List<Poll> getRegPolls(MuniRegion muniregi, PollStatusEnum pollStatusEnum) {
-        List<Poll> allPolls = db.getAllPolls();
+    public List<Poll> getRegPolls(MuniRegion mr, PollStatusEnum ps) {
+        List<Poll> allPolls = db.getRegiPolls(mr.region(), ps);
+        //polls.removeIf(p -> !p.home().equals(mr) || !isPollDateInRange(p, ps));
         List<Poll> regPolls = new ArrayList<>();
         for (Poll p : allPolls) {
-            if (p.home().region().equals(muniregi.region()) && isPollDateInRange(p, pollStatusEnum)) {
+            if (p.home().region().equals(mr.region()) && isPollDateInRange(p, ps)) {
                 regPolls.add(p);
             }
         }
         return regPolls;
     }
-    public List<Poll> getNatPolls(PollStatusEnum pe){
-        List<Poll> allPolls = db.getAllPolls(); 
+    public List<Poll> getNatPolls(PollStatusEnum ps){
+        List<Poll> allPolls = db.getAllPolls(ps); 
         List<Poll> natPolls = new ArrayList<>();
         for (Poll poll : allPolls){
-            if (poll.level() == LevelEnum.National && isPollDateInRange(poll, pe)){
+            if (poll.level() == LevelEnum.National && isPollDateInRange(poll, ps)){
                 natPolls.add(poll);
             }
         }
@@ -54,12 +62,12 @@ public class PollBrowser {
     }
 
     
-    public List<Poll> getPollsByCitizen(Citizen c, PollStatusEnum pe) {
-        List<Poll> allPolls = db.getAllPolls(); 
+    public List<Poll> getPollsByCitizen(Citizen c, PollStatusEnum ps) {
+        List<Poll> allPolls = db.getAllPolls(ps); 
         List<Poll> citizenPolls = new ArrayList<>();
 
         for (Poll poll : allPolls) {
-            if (poll.creator().equals(c.id()) && isPollDateInRange(poll, pe)) { 
+            if (poll.creator().equals(c.id()) && isPollDateInRange(poll, ps)) { 
                 citizenPolls.add(poll);
             }
         }
@@ -90,10 +98,10 @@ public class PollBrowser {
      * @param l any polls not on this level is filtered out, null value filters nothing.
      * @return a list of polls.
      */
-    public List<Poll> getVotedPolls(Citizen c, PollStatusEnum s, LevelFilterEnum l){
-        List<Poll> polls = db.getVotedPolls(c);
-        polls.removeIf(p -> isPollDateInRange(p, s) && isPollInLevel(p, l));
-
+    public List<Poll> getVotedPolls(Citizen c, PollStatusEnum ps, LevelFilterEnum l){
+        List<Poll> polls = db.getVotedPolls(c, ps);
+        System.out.println(polls);
+        polls.removeIf(p -> !isPollInLevel(p, l));
         return polls;
     }
 
@@ -103,47 +111,26 @@ public class PollBrowser {
     private boolean isPollInLevel(Poll p, LevelFilterEnum l) {
         if (l == LevelFilterEnum.All)
             return true;
-        switch(p.level()){
-            case Municipal -> {
-                return l == LevelFilterEnum.Municipal;
-            }
-            case Regional -> {
-                return l == LevelFilterEnum.Regional;
-            }
-            case National -> {
-                return l == LevelFilterEnum.National;
-            }
-        }
-        return false;
+        return switch(p.level()) {
+            case Municipal -> l == LevelFilterEnum.Municipal;
+            case Regional -> l == LevelFilterEnum.Regional;
+            case National -> l == LevelFilterEnum.National;
+        };
     }
 
     private boolean isPollDateInRange(Poll p, PollStatusEnum s) {
         PollStatusEnum _s;
-
         try {
             _s = getPollStatus(p);
         } catch (ParseException e) {
             return false;
         }
-
-        switch(s){
-            case All -> {
-                return true;
-            }
-            case Passed -> {
-                return _s == PollStatusEnum.Passed;
-            }
-            case Future -> {
-                return _s == PollStatusEnum.Future;
-            }
-            case Active -> {
-                return _s == PollStatusEnum.Active;
-            }
-            case NotPassed -> {
-                return _s == PollStatusEnum.Active || _s == PollStatusEnum.Future;
-            }
-        }
-        return false;
+        return switch(s) {
+            case All -> true;
+            case Past -> _s == PollStatusEnum.Past;
+            case Future -> _s == PollStatusEnum.Future;
+            case Active -> _s == PollStatusEnum.Active;
+        };
     }
 
     private PollStatusEnum getPollStatus(Poll p) throws ParseException {
@@ -154,7 +141,7 @@ public class PollBrowser {
         String end = p.endDate();
 
         if(sdf.parse(end).before(today))
-            return PollStatusEnum.Passed;
+            return PollStatusEnum.Past;
 
         if (sdf.parse(start).after(today))
             return PollStatusEnum.Future;

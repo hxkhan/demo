@@ -1,12 +1,19 @@
 package agile18.demo.model.Database;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import java.util.*;
 
 import agile18.Utils;
-import agile18.demo.model.*;
-import agile18.demo.model.Records.*;
+import agile18.demo.model.LevelEnum;
+import agile18.demo.model.PollStatusEnum;
+import agile18.demo.model.VoteEnum;
+import agile18.demo.model.Records.Citizen;
+import agile18.demo.model.Records.MuniRegion;
+import agile18.demo.model.Records.NewsPost;
+import agile18.demo.model.Records.Poll;
 
 /*
     DATABASE CONTRACT: Everything passed to DB methods is to be expected to be correct and error checked!
@@ -86,21 +93,40 @@ public class Database {
     }
 
     // --------------------- Polls ---------------------
-    public List<Poll> getAllPolls() {
+    public List<Poll> getAllPolls(PollStatusEnum ps) {
+        String ending = getPollStatus(ps);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+ 
-            "FROM Poll p JOIN Municipality m ON p.home = m.name;";
-
+            "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + ending + ";";
+        return getPolls(sql);
+    }
+    public List<Poll> getMuniPolls(String m, PollStatusEnum ps){
+        String ending = getPollStatus(ps);
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE home = '" + m + "' AND level = 'Municipal' AND "+ ending +";";
+        return getPolls(sql);
+    }
+    public List<Poll> getRegiPolls(String r, PollStatusEnum ps){
+        String ending = getPollStatus(ps);
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE region = '" + r + "' AND level = 'Regional' AND "+ ending +";";
+        return getPolls(sql);
+    }
+    public List<Poll> getNatPolls(PollStatusEnum ps){
+        String ending = getPollStatus(ps);
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE level = 'National' AND " + ending + ";";
         return getPolls(sql);
     }
     public List<Poll> getEligiblePolls(Citizen c) {
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE id NOT IN (SELECT poll FROM Casted WHERE voter = " + c.id() + ");";
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE id NOT IN (SELECT poll FROM Casted WHERE voter = '" + c.id() + "');";
 
         return getPolls(sql);
     }
-    public List<Poll> getVotedPolls(Citizen c) {
+    public List<Poll> getVotedPolls(Citizen c, PollStatusEnum ps) {
+        String ending = getPollStatus(ps);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE id IN (SELECT poll FROM Casted WHERE voter = " + c.id() + ");";
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE "+ ending +" AND id IN (SELECT poll FROM Casted WHERE voter = '" + c.id() + "');";
 
         return getPolls(sql);
     }
@@ -120,6 +146,14 @@ public class Database {
                     r.getInt("against")
             );
         });
+    }
+    private String getPollStatus(PollStatusEnum ps){
+        return switch(ps) {
+            case All -> "TRUE";
+            case Past -> "endDate < CURRENT_TIMESTAMP()";
+            case Active -> "startDate < CURRENT_TIMESTAMP() AND endDate > CURRENT_TIMESTAMP()";
+            case Future -> "startDate > CURRENT_TIMESTAMP()";
+        };
     }
 
     public Poll getPollWithID(int id) {
