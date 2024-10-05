@@ -10,6 +10,7 @@ import agile18.Utils;
 import agile18.demo.model.LevelEnum;
 import agile18.demo.model.Onboarder;
 import agile18.demo.model.PollBrowser;
+import agile18.demo.model.PollEnum;
 import agile18.demo.model.PollingStation;
 import agile18.demo.model.VoteEnum;
 import agile18.demo.model.Exceptions.*;
@@ -99,12 +100,21 @@ public class PollingStationController {
     }
 
     @GetMapping("/municipal-polls")
-    public Map<String, Object> onGetMunicipalPolls(@RequestParam String uuid) {
+    public Map<String, Object> onGetMunicipalPolls(@RequestParam String uuid,
+    @RequestParam(defaultValue = "Active") String status) {
+        if (!Utils.isOneOf(status, "Active", "Future", "Past")) {
+            return Map.of(
+                    "success", false,
+                    "message", "invalid status");
+        }
+        if (status.equals("Past"))
+            status = "Finished";
+
         try {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
-                    "data", pb.getMunPolls(c.home()));
+                    "data", pb.getMunPolls(c.home(), PollEnum.valueOf(status)));
         } catch (IllegalArgumentException e) {
             return Map.of(
                     "success", false,
@@ -117,12 +127,22 @@ public class PollingStationController {
     }
 
     @GetMapping("/regional-polls")
-    public Map<String, Object> onGetRegionalPolls(@RequestParam String uuid) {
+    public Map<String, Object> onGetRegionalPolls(@RequestParam String uuid,
+            @RequestParam(defaultValue = "Active") String status) {
+
+        if (!Utils.isOneOf(status, "Active", "Future", "Past")) {
+            return Map.of(
+                    "success", false,
+                    "message", "invalid status");
+        }
+        if (status.equals("Past"))
+            status = "Finished";
+
         try {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
-                    "data", pb.getRegPolls(c.home()));
+                    "data", pb.getRegPolls(c.home(), PollEnum.valueOf(status)));
         } catch (IllegalArgumentException e) {
             return Map.of(
                     "success", false,
@@ -135,8 +155,30 @@ public class PollingStationController {
     }
 
     @GetMapping("/national-polls")
-    public List<Poll> onGetNationalPolls(@RequestParam(defaultValue = "active") String status) {
-        return pb.getNatPolls();
+    public Map<String, Object> onGetNationalPolls(@RequestParam String uuid,
+            @RequestParam(defaultValue = "Active") String status) {
+        if (!Utils.isOneOf(status, "Active", "Future", "Past")) {
+            return Map.of(
+                    "success", false,
+                    "message", "invalid status");
+        }
+        if (status.equals("Past"))
+            status = "Finished";
+
+        try {
+            ob.checkLogin(UUID.fromString(uuid));
+            return Map.of(
+                    "success", true,
+                    "data", pb.getNatPolls(PollEnum.valueOf(status)));
+        } catch (IllegalArgumentException e) {
+            return Map.of(
+                    "success", false,
+                    "message", "invalid uuid");
+        } catch (NotLoggedInException e) {
+            return Map.of(
+                    "success", false,
+                    "message", "not logged in");
+        }
     }
 
     @GetMapping("/poll")

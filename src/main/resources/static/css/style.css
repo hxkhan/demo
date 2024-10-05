@@ -121,6 +121,16 @@ header>.inner {
         font-family: "Rubik";
         font-size: 16px;
     }
+
+    .only-desktop {
+        display:none;
+    }
+}
+
+.nowrap {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 [x-cloak] {

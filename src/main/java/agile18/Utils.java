@@ -10,6 +10,13 @@ public class Utils {
         return false;
     }
 
+    public static boolean isOneOf(String s, String... strings) {
+        for (String str : strings) {
+            if (s.equals(str)) return true;
+        }
+        return false;
+    }
+
     public static String sqlValues(Object... values) {
         StringBuilder total = new StringBuilder();
 

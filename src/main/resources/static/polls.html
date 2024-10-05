@@ -32,6 +32,8 @@
     <!-- Alpine JavaScript -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -133,21 +135,16 @@
                     <label class="form-label">Body</label>
                     <div class="form-group mb-4">
                         <textarea type="text" x-model="body" class="form-control" rows="6" id="view-poll-body"
-                        disabled></textarea>
+                            disabled></textarea>
                     </div>
-                    
+
                     <label class="form-label">Start Date & End Date</label>
                     <div class="input-group mb-4">
                         <input type="date" class="form-control" id="view-poll-start-date" disabled>
                         <input type="date" class="form-control" id="view-poll-end-date" disabled>
                     </div>
-                    
-                    <label class="form-label">Against & Blank & Favor</label>
-                    <div class="input-group mb-4">
-                        <input type="number" class="form-control" id="view-poll-against" disabled>
-                        <input type="number" class="form-control" id="view-poll-blank" disabled>
-                        <input type="number" class="form-control" id="view-poll-favor" disabled>
-                    </div>
+
+                    <canvas id="votesChart" style="width:100%; max-width: 600px; margin: 0 auto;"></canvas>
 
                 </div>
                 <div class="modal-footer">
@@ -159,18 +156,17 @@
         </div>
     </div>
 
-
     <!-- Polls -->
     <div class="polls-list sft rounded-box-shadow" x-data="{ status: 'Active', level: 'National' }">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-3">Polls</h2>
             <div class="d-flex gap-2">
-                <select class="form-select mb-3" style="max-width: 140px;">
+                <select class="form-select mb-3" style="width: 110px;" x-model="status" @change="getPolls(level, status);">
                     <option>Active</option>
                     <option>Past</option>
                     <option>Future</option>
                 </select>
-                <select class="form-select mb-3" style="max-width: 140px;">
+                <select class="form-select mb-3" style="width: 140px;" x-model="level" @change="getPolls(level, status);">
                     <option>National</option>
                     <option>Regional</option>
                     <option>Municipal</option>
@@ -178,6 +174,26 @@
             </div>
         </div>
         <div class="list-group sft w-auto" id="pollsList">
+            <!-- <a onclick="openPoll(2)" class="list-group-item list-group-item-action d-flex gap-3 py-3"
+                aria-current="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="rgb(0, 104, 161)"
+                    class="bi bi-bank flex-shrink-0" viewBox="0 0 16 16">
+                    <path
+                        d="m8 0 6.61 3h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.38l.5 2a.498.498 0 0 1-.485.62H.5a.498.498 0 0 1-.485-.62l.5-2A.5.5 0 0 1 1 13V6H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 3h.89zM3.777 3h8.447L8 1zM2 6v7h1V6zm2 0v7h2.5V6zm3.5 0v7h1V6zm2 0v7H12V6zM13 6v7h1V6zm2-1V4H1v1zm-.39 9H1.39l-.25 1h13.72z">
+                    </path>
+                </svg>
+                <div class="d-flex gap-2 w-100 justify-content-between">
+                    <div>
+                        <h6 class="mb-0">Redirect pension fund!</h6>
+                        <p class="mb-0 opacity-75">I think we should redirect our pension fund to stock options on the
+                            oil market!</p>
+                    </div>
+                    <small class="opacity-50 text-nowrap only-desktop" >Ends:
+                        2024-10-10</small>
+                </div>
+                <span class="badge rounded-pill"
+                    style="background-color: rgb(0, 104, 161); position: absolute; bottom: 5px; right: 5px;">Voted</span>
+            </a> -->
         </div>
     </div>
 
@@ -185,6 +201,8 @@
     <script>
         startDateInput.min = new Date().toISOString().split("T")[0];
         var polls = [];
+        var pollsStatus = "Active";
+        var pollsLevel = "National";
 
         function createPoll({ level, title, body, startDate, endDate }) {
             fetch(`/create-poll?uuid=${localStorage.uuid}`, {
@@ -204,38 +222,68 @@
                 if (data.success == false) {
                     return;
                 }
+                window.location.reload();
             });
         };
 
-        fetch('/national-polls', {
-            method: "GET",
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        }).then((response) => response.json()).then((data) => {
-            polls = data;
-            for (const index in data) {
-                var poll = data[index];
-                var pills = `<span class="badge rounded-pill bg-primary" style="position: absolute; bottom: 5px; right: 5px;">Voted</span>`;
-                var pollText = `<a onclick="openPoll(${poll.id})" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+        function getPolls(level, status) {
+            var url = "";
+            if (level == "National") url = "national-polls";
+            if (level == "Regional") url = "regional-polls";
+            if (level == "Municipal") url = "municipal-polls";
+            pollsStatus = status;
+            console.log(`sending to /${url}?uuid=${localStorage.uuid}&status=${status}`);
+            fetch(`/${url}?uuid=${localStorage.uuid}&status=${status}`, {
+                method: "GET",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((response) => response.json()).then((body) => {
+                if (body.success == true) {
+                    polls = body.data;
+                    populatePageWithPolls();
+                } else console.log(body);
+            });
+        }
+
+        function populatePageWithPolls() {
+            pollsList.innerHTML = "";
+            for (const index in polls) {
+
+                var poll = polls[index];
+                var pills = `<span class="badge rounded-pill" style="background-color: rgb(0, 104, 161);">Voted</span>`;
+                var greyTextPre = "";
+                var greyTextDate = "";
+                if (pollsStatus == "Past") {
+                    greyTextPre = "Ended on";
+                    var greyTextDate = poll.endDate;
+                } else if (pollsStatus == "Active") {
+                    greyTextPre = "Ends";
+                    var greyTextDate = poll.endDate;
+                } else if (pollsStatus == "Future") {
+                    greyTextPre = "Starts on";
+                    var greyTextDate = poll.startDate;
+                }
+                var pollText = ` <a onclick="openPoll(${poll.id})" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="rgb(0, 104, 161)"
                     class="bi bi-bank flex-shrink-0" viewBox="0 0 16 16">
-                    <path
-                    d="m8 0 6.61 3h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.38l.5 2a.498.498 0 0 1-.485.62H.5a.498.498 0 0 1-.485-.62l.5-2A.5.5 0 0 1 1 13V6H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 3h.89zM3.777 3h8.447L8 1zM2 6v7h1V6zm2 0v7h2.5V6zm3.5 0v7h1V6zm2 0v7H12V6zM13 6v7h1V6zm2-1V4H1v1zm-.39 9H1.39l-.25 1h13.72z" />
-                    </svg>
+                    <path d="m8 0 6.61 3h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.38l.5 2a.498.498 0 0 1-.485.62H.5a.498.498 0 0 1-.485-.62l.5-2A.5.5 0 0 1 1 13V6H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 3h.89zM3.777 3h8.447L8 1zM2 6v7h1V6zm2 0v7h2.5V6zm3.5 0v7h1V6zm2 0v7H12V6zM13 6v7h1V6zm2-1V4H1v1zm-.39 9H1.39l-.25 1h13.72z" /></svg>
                     <div class="d-flex gap-2 w-100 justify-content-between">
                         <div>
                             <h6 class="mb-0">${poll.title}</h6>
-                            <p class="mb-0 opacity-75">${poll.body}</p>
-                            </div>
-                            <small class="opacity-50 text-nowrap">Ends on: ${poll.endDate}</small>
-                            </div>
-                            ${pills}
-                            </a>`;
+                            <p class="mb-2 opacity-75">${poll.body}</p>
+                        </div>
+                        <small class="opacity-50 text-nowrap only-desktop">${greyTextPre}: ${poll.endDate}</small>
+                    </div>
+                    <div style="position: absolute; bottom: 5px; right: 5px;">
+                    ${pills}
+                    </div>
+                    
+                </a>`;
 
                 pollsList.innerHTML += pollText;
             }
-        });
+        }
 
         var viewPollModal = new bootstrap.Modal(document.getElementById('view-poll-modal'));
         var selectedPoll = null;
@@ -248,9 +296,33 @@
                 document.getElementById('view-poll-body').value = poll.body;
                 document.getElementById('view-poll-start-date').value = poll.startDate;
                 document.getElementById('view-poll-end-date').value = poll.endDate;
-                document.getElementById('view-poll-against').value = poll.against;
-                document.getElementById('view-poll-blank').value = poll.blank;
-                document.getElementById('view-poll-favor').value = poll.favor;
+
+                var xValues = ["Against", "Blank", "Favor"];
+                var yValues = [10, 25, 5];
+                //var yValues = [poll.against, poll.blank, poll.favor];
+                var barColors = [
+                    "#db3545",
+                    "#0068a1",
+                    "#1a8754",
+                ];
+
+                new Chart("votesChart", {
+                    type: "pie",
+                    data: {
+                        labels: xValues,
+                        datasets: [{
+                            backgroundColor: barColors,
+                            data: yValues
+                        }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: "Voting distribution"
+                        }
+                    }
+                });
+
                 viewPollModal.show();
             }
         }
@@ -260,6 +332,8 @@
 
             }
         }
+
+        getPolls("National", "Active");
     </script>
 </body>
 

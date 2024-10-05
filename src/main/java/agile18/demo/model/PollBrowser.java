@@ -58,7 +58,7 @@ public class PollBrowser {
         return regPolls;
     }
     // Method for filtering polls for the national level 
-    public List<Poll> getNatPolls(){
+    public List<Poll> getNatPolls() {
         return getNatPolls(null);
     }
     public List<Poll> getNatPolls(PollEnum pe){
