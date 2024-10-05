@@ -2,18 +2,15 @@ package agile18.demo.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import agile18.demo.model.Database.Database;
-import agile18.demo.model.Records.MuniRegion;
-import agile18.demo.model.Records.Poll;
+import agile18.demo.model.Records.*;
+
 
 @SpringBootTest
 public class PollBrowserTests {

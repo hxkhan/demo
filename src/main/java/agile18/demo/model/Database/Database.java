@@ -1,20 +1,13 @@
 package agile18.demo.model.Database;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import agile18.Utils;
-import agile18.demo.model.LevelEnum;
-import agile18.demo.model.LevelFilterEnum;
-import agile18.demo.model.PollStatusEnum;
-import agile18.demo.model.VoteEnum;
-import agile18.demo.model.Records.Citizen;
-import agile18.demo.model.Records.MuniRegion;
-import agile18.demo.model.Records.NewsPost;
-import agile18.demo.model.Records.Poll;
+import agile18.demo.model.*;
+import agile18.demo.model.Records.*;
 
 /*
     DATABASE CONTRACT: Everything passed to DB methods is to be expected to be correct and error checked!
