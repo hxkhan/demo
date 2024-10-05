@@ -30,17 +30,8 @@ public class PollBrowser {
         return db.getAllPolls();
     }
     // --
-    public List<Poll> getMunPolls(MuniRegion muniregi) {
-        return getMunPolls(muniregi, null);
-    }
-    public List<Poll> getMunPolls(MuniRegion muniregi, PollStatusEnum pollStatusEnum) {
 
 
-        return db.getMuniPolls(muniregi.municipality(), pollStatusEnum);
-    }
-    public List<Poll> getRegPolls(MuniRegion muniregi) {
-        return getRegPolls(muniregi, PollStatusEnum.NotPassed);
-    }
     public List<Poll> getRegPolls(MuniRegion muniregi, PollStatusEnum pollStatusEnum) {
         List<Poll> allPolls = db.getAllPolls();
         List<Poll> regPolls = new ArrayList<>();
@@ -50,10 +41,6 @@ public class PollBrowser {
             }
         }
         return regPolls;
-    }
-    // Method for filtering polls for the national level 
-    public List<Poll> getNatPolls() {
-        return getNatPolls(null);
     }
     public List<Poll> getNatPolls(PollStatusEnum pe){
         List<Poll> allPolls = db.getAllPolls(); 
@@ -66,10 +53,6 @@ public class PollBrowser {
         return natPolls;
     }
 
-    // Method for filtering polls created by a specific citizen
-    public List<Poll> getPollsByCitizen(Citizen c){
-        return getPollsByCitizen(c, null);
-    }
     
     public List<Poll> getPollsByCitizen(Citizen c, PollStatusEnum pe) {
         List<Poll> allPolls = db.getAllPolls(); 
@@ -83,38 +66,6 @@ public class PollBrowser {
         return citizenPolls;
     }
 
-
-    /**
-     * Return a list of polls that a given citizen is eligible to vote for.
-     * @param c a given Citizen.
-     * @return a list of polls.
-     */
-    public List<Poll> getEligiblePolls(Citizen c) {
-        return getEligiblePolls(c, null, null);
-    }
-
-    /**
-     * Return a list of polls that a given citizen is eligible to vote for,
-     * with possible filters for a polls status.
-     * @param c a given Citizen.
-     * @param s any polls without this status is filtered out, null value filters nothing.
-     * @return a list of polls.
-     */
-    public List<Poll> getEligiblePolls(Citizen c, PollStatusEnum s) {
-        return getEligiblePolls(c, s, null);
-    }
-
-    /**
-     * Return a list of polls that a given citizen is eligible to vote for,
-     * with possible filters for a polls level.
-     * @param c a given Citizen.
-     * @param l any polls not on this level is filtered out, null value filters nothing.
-     * @return a list of polls.
-     */
-    public List<Poll> getEligiblePolls(Citizen c, LevelEnum l) {
-        return getEligiblePolls(c, null, l);
-    }
-
     /**
      * Return a list of polls that a given citizen is eligible to vote for,
      * with possible filters for a polls status and level.
@@ -123,53 +74,13 @@ public class PollBrowser {
      * @param l any polls not on this level is filtered out, null value filters nothing.
      * @return a list of polls.
      */
-    public List<Poll> getEligiblePolls(Citizen c, PollStatusEnum s, LevelEnum l){
-        List<Poll> polls = db.getAllPolls();
+    public List<Poll> getEligiblePolls(Citizen c, PollStatusEnum s, LevelFilterEnum l){
+        List<Poll> polls = db.getEligiblePolls(c);
+        polls.removeIf(p -> isPollDateInRange(p, s) && isPollInLevel(p, l));
 
-        int i = 0;
-
-        while (i < polls.size()){
-            Poll p = polls.get(i);
-            boolean valid = isPollDateInRange(p, s) && isPollInLevel(p, l);
-
-            if (!isCitizenEligible(c, p) || !valid)
-                polls.remove(i);
-            else
-                ++i;
-        }
         return polls;
     }
 
-    /**
-     * Returns a list of all polls that a given citizen has voted for.
-     * @param c a given Citizen.
-     * @return a list of polls.
-     */
-    public List<Poll> getVotedPolls(Citizen c){
-        return getVotedPolls(c, null, null);
-    }
-
-    /**
-     * Returns a list of all polls that a given citizen has voted for,
-     * with possible filters for a polls status.
-     * @param c a given Citizen.
-     * @param s any polls without this status is filtered out, null value filters nothing.
-     * @return a list of polls.
-     */
-    public List<Poll> getVotedPolls(Citizen c, PollStatusEnum s){
-        return getVotedPolls(c, s, null);
-    }
-
-    /**
-     * Returns a list of all polls that a given citizen has voted for,
-     * with possible filters for a polls level.
-     * @param c a given Citizen.
-     * @param l any polls not on this level is filtered out, null value filters nothing.
-     * @return a list of polls.
-     */
-    public List<Poll> getVotedPolls(Citizen c, LevelEnum l) {
-        return getVotedPolls(c, null, l);
-    }
 
     /**
      * Returns a list of all polls that a given citizen has voted for,
@@ -179,43 +90,31 @@ public class PollBrowser {
      * @param l any polls not on this level is filtered out, null value filters nothing.
      * @return a list of polls.
      */
-    public List<Poll> getVotedPolls(Citizen c, PollStatusEnum s, LevelEnum l){
-        List<Poll> polls = db.getAllPolls();
+    public List<Poll> getVotedPolls(Citizen c, PollStatusEnum s, LevelFilterEnum l){
+        List<Poll> polls = db.getVotedPolls(c);
+        polls.removeIf(p -> isPollDateInRange(p, s) && isPollInLevel(p, l));
 
-        int i = 0;
-
-        while (i < polls.size()){
-            Poll p = polls.get(i);
-            boolean valid = isPollDateInRange(p, s) && isPollInLevel(p, l);
-
-            if (!db.hasCast(c, p.id()) || !valid)
-                polls.remove(i);
-            else
-                ++i;
-        }
         return polls;
     }
 
 
     // ----- HELPERS -----
-    private boolean isCitizenEligible(Citizen c, Poll p) {
-        if (db.hasCast(c, p.id()))
-            return false;
 
+    private boolean isPollInLevel(Poll p, LevelFilterEnum l) {
+        if (l == LevelFilterEnum.All)
+            return true;
         switch(p.level()){
-            case National:
-                return true;
-            case Regional:
-                if (c.home().region().equals(p.home().region()))
-                    return true;
-            case Municipal:
-                if (c.home().municipality().equals(p.home().municipality()))
-                    return true;
+            case Municipal -> {
+                return l == LevelFilterEnum.Municipal;
+            }
+            case Regional -> {
+                return l == LevelFilterEnum.Regional;
+            }
+            case National -> {
+                return l == LevelFilterEnum.National;
+            }
         }
         return false;
-    }
-    private boolean isPollInLevel(Poll p, LevelEnum l) {
-        return l == null || p.level() == l;
     }
 
     private boolean isPollDateInRange(Poll p, PollStatusEnum s) {
@@ -227,17 +126,23 @@ public class PollBrowser {
             return false;
         }
 
-        if (s == null)
-            return true;
-        if (s == PollStatusEnum.Passed && _s == PollStatusEnum.Passed)
-            return true;
-        if (s == PollStatusEnum.Future && _s == PollStatusEnum.Future)
-            return true;
-        if (s == PollStatusEnum.Active && _s == PollStatusEnum.Active)
-            return true;
-        if (s == PollStatusEnum.NotPassed && (_s == PollStatusEnum.Active || _s == PollStatusEnum.Future))
-            return true;
-
+        switch(s){
+            case All -> {
+                return true;
+            }
+            case Passed -> {
+                return _s == PollStatusEnum.Passed;
+            }
+            case Future -> {
+                return _s == PollStatusEnum.Future;
+            }
+            case Active -> {
+                return _s == PollStatusEnum.Active;
+            }
+            case NotPassed -> {
+                return _s == PollStatusEnum.Active || _s == PollStatusEnum.Future;
+            }
+        }
         return false;
     }
 
