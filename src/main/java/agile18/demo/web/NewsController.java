@@ -19,6 +19,21 @@ public class NewsController {
         this.ns = ns;
     }
 
+    @PostMapping("/favor-news")
+    public Map<String, Object> onFavorNews(@RequestParam String uuid, @RequestBody BodyOfFavorNews body) {
+        try {
+            ns.favorNews(body.newsId(), UUID.fromString(uuid), body.favorable());
+            return Map.of(
+                "success", true);
+        }
+        catch (NotLoggedInException e) {
+            return Map.of(
+                "success", false,
+                "message", "Not logged in"
+            );
+        }
+    }
+
     @PostMapping("/post-news")
     public Map<String, Object> onPostNews(@RequestParam String uuid, @RequestBody BodyOfPostNews body) {
         if (!body.isValid()) {
@@ -53,3 +68,5 @@ record BodyOfPostNews(String title, String body) {
         return !Utils.isEmpty(title, body);
     }
 }
+
+record BodyOfFavorNews(int newsId, boolean favorable) {}

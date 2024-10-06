@@ -118,11 +118,25 @@
                     "Content-type": "application/json; charset=UTF-8"
                 }
             }).then((response) => response.json()).then((data) => {
-                console.log("Posted data:" + data)
                 bootstrap.Modal.getInstance(document.getElementById('post-news-modal')).hide()
                 showNews()
             });
         };
+
+        function voteFavor(id, favorable) {
+            fetch(`/favor-news?uuid=${localStorage.uuid}`, {
+                method: "POST",
+                body: JSON.stringify({
+                    newsId: id,
+                    favorable: favorable
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((response) => response.json()).then((data) => {
+                showNews()
+            });
+        }
 
         function showNews() {
             const newsContainer = document.getElementById('news-container')
@@ -134,18 +148,18 @@
                     data.forEach(element => {
                         const newsElement = document.createElement('div');
                         newsElement.className = 'news-item';
-                        newsElement.innerHTML =
-                            `<div class="card">
+                        newsElement.innerHTML = `
+                        <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">${element.title}</h5>
                                 <p class="card-text">${element.body}</p>
-                                <p class="card-text"><small class="text-muted">${element.date}</small></p>
-                                <div class="d-flex justify-content-between">
-                                    <div class="p-2 bg-danger text-white rounded">
-                                        <small>Unfavored: ${element.unfavorable}</small>
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="card-text"><small class="text-muted">${element.date}</small></p>
                                     </div>
-                                    <div class="p-2 bg-success text-white rounded">
-                                        <small>Favored: ${element.favorable}</small>
+                                    <div class="mt-3">
+                                        <button type="button" class="btn bg-success rounded text-white" @click="voteFavor(${element.id}, true)">${element.favorable} Favor</button>
+                                        <button type="button" class="btn bg-danger rounded text-white" @click="voteFavor(${element.id}, false)">${element.unfavorable} Unfavor</button>
                                     </div>
                                 </div>
                             </div>

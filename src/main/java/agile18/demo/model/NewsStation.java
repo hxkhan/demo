@@ -31,4 +31,9 @@ public class NewsStation {
         return db.getAllNews();
     }
 
+    public void favorNews(int newsId, UUID accessToken, boolean favorable) throws NotLoggedInException {
+        Citizen citizen = ob.checkLogin(accessToken);
+        db.favorNews(newsId, citizen.id(), favorable);
+    }
+
 }

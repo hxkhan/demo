@@ -236,7 +236,7 @@ public class Database {
     }
 
     public List<NewsPost> getAllNews() {
-        String sql = "SELECT n.title, n.body, n.date, " +
+        String sql = "SELECT n.id, n.title, n.body, n.date, " +
                  "SUM(CASE WHEN co.favorable THEN 1 ELSE 0 END) AS favorable, " +
                  "SUM(CASE WHEN NOT co.favorable THEN 1 ELSE 0 END) AS unfavorable " +
                  "FROM News n " +
@@ -246,6 +246,7 @@ public class Database {
 
         return jdbc.query(sql, (r, rowNum) -> {
             return new NewsPost(
+                r.getInt("id"),
                 r.getString("title"),
                 r.getString("body"),
                 r.getString("date"),
@@ -254,5 +255,13 @@ public class Database {
             );
         });
     }
+
+    public void favorNews(int newsId, String citizenId, boolean favorable) {
+        String values = Utils.sqlValues(newsId, citizenId, favorable);
+        String sql = "INSERT INTO CastedOpinion VALUES(" + values + ")";
+        jdbc.execute(sql);
+    }
+
+
 
 }
