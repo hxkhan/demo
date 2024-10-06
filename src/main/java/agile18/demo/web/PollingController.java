@@ -41,8 +41,8 @@ public class PollingController {
         }
 
         try {
-            ps.createPoll(UUID.fromString(uuid), body.title(), body.body(), LevelEnum.valueOf(body.level()),
-                    body.startDate(), body.endDate());
+            ps.createPoll(UUID.fromString(uuid), body.title(), body.body(), body.level(), body.startDate(),
+                    body.endDate());
             return Map.of(
                     "success", true);
         } catch (IllegalArgumentException e) {
@@ -56,12 +56,6 @@ public class PollingController {
         }
     }
 
-    @GetMapping("/cast-vote")
-    public Map<String, Object> onGetCastVote(@RequestParam String uuid, @RequestParam int id,
-            @RequestParam String vote) {
-        return onCastVote(uuid, new BodyOfCastVote(id, vote));
-    }
-
     @PostMapping("/cast-vote")
     public Map<String, Object> onCastVote(@RequestParam String uuid, @RequestBody BodyOfCastVote body) {
         if (!body.isValid()) {
@@ -71,7 +65,7 @@ public class PollingController {
         }
 
         try {
-            ps.castVote(UUID.fromString(uuid), body.id(), VoteEnum.valueOf(body.vote()));
+            ps.castVote(UUID.fromString(uuid), body.id(), body.vote());
             return Map.of(
                     "success", true);
         } catch (IllegalArgumentException e) {
@@ -192,17 +186,19 @@ public class PollingController {
     }
 }
 
-record BodyOfCastVote(int id, String vote) {
+record BodyOfCastVote(int id, VoteEnum vote) {
     boolean isValid() {
-        return !Utils.isEmpty(vote) && (vote.equals("Favor") || vote.equals("Against") || vote.equals("Blank"));
+        return vote != null;
     }
 }
 
-record BodyOfCreatePoll(String title, String body, String level, String startDate, String endDate) {
+record BodyOfCreatePoll(String title, String body, LevelEnum level, String startDate, String endDate) {
     boolean isValid() {
+        if (Utils.isEmpty(title, body, startDate, endDate) || level == null) return false;
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date today = new Date();
-        
+
         try {
             boolean startsBeforeItEnds = sdf.parse(endDate).before(sdf.parse(startDate));
             boolean startsAndEndsOnTheSameDay = startDate.equals(endDate);
@@ -212,10 +208,10 @@ record BodyOfCreatePoll(String title, String body, String level, String startDat
                 return false;
             }
         } catch (ParseException e) {
+            // invalid dates
             return false;
         }
 
-        return !Utils.isEmpty(title, body, level, startDate, endDate) &&
-                (level.equals("Municipal") || level.equals("Regional") || level.equals("National"));
+        return true;
     }
 }
