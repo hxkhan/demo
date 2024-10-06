@@ -16,17 +16,21 @@ INSERT INTO Citizen VALUES ('0305251111', 'Hassan', 'Khan','hejsan123', 'Trollh�
 INSERT INTO Citizen VALUES ('0311261111', 'David', 'Golebiak', 'tjabatjena', 'Härryda');
 INSERT INTO Citizen VALUES ('9603291111', 'Sebastian', 'Kolbel', 'hejhallo', 'Varberg');
 
--- Polls
-INSERT INTO Poll VALUES (0,'0305251111', 'Borås', 'Municipal', 'Tear down Borås!', 'Valid argument tbh!', '2024-09-28', '2024-09-30', 0, 0, 0);
-INSERT INTO Poll VALUES (1,'0311261111', 'Göteborg', 'Regional', 'Dance prohibition!', 'Please no dancing!', '2024-10-01', '2024-10-05', 0, 0, 0);
-INSERT INTO Poll VALUES (2,'0311261111', 'Varberg', 'National', 'Redirect pension fund!', 'I think we should redirect our pension fund to stock options on the oil market!', '2024-10-03', '2024-10-10', 0, 0, 0);
+-- Past Polls
+INSERT INTO Poll VALUES (0,'0305251111', 'Trollhättan', 'Municipal', 'Tear down MÅG', 'Valid argument tbh!', '2024-09-01', '2024-09-07', 0, 0, 0);
+INSERT INTO Poll VALUES (1,'0311261111', 'Härryda', 'Regional', 'Dance prohibition!', 'Please no dancing!', '2024-10-01', '2024-10-05', 0, 0, 0);
+
+-- Active Polls
+INSERT INTO Poll VALUES (2,'0311261111', 'Härryda', 'Regional', 'Prohibit Alcohol on campus!', 'Self explanatory!', '2024-10-01', '2024-10-31', 0, 0, 0);
+INSERT INTO Poll VALUES (3,'0305251111', 'Trollhättan', 'National', 'Invade Denmark!', 'Take back what is ours!', '2024-10-01', '2024-10-31', 0, 0, 0);
+
+-- Future Polls
+INSERT INTO Poll VALUES (4,'9603291111', 'Varberg', 'Regional', 'Redirect pension fund!', 'I think we should redirect our VGR pension fund to stock options on the oil market!', '2024-10-21', '2024-10-25', 0, 0, 0);
+INSERT INTO Poll VALUES (5,'0311261111', 'Härryda', 'National', 'Leave EU!', 'Keep Sweden Swedish, we make our own decisions about our future! USB C sucks!', '2024-11-01', '2024-11-30', 0, 0, 0);
 
 -- News
 INSERT INTO News (id, title, body, date) VALUES (0, 'Death of Julius Caesar', 'Our great leader Julius Caesar has been assassinated today on the Ides of March.', '-0044-03-15 00:00:00');
 INSERT INTO News VALUES (1, 'Example News', 'This is an example of how news would look like here', '2024-10-04 19:54:32');
-
-INSERT INTO Casted VALUES ('0311261111', 1);
-INSERT INTO Casted VALUES ('0311261111', 2);
 
 -- Query that will be mapped to the record in Citizen.java
 SELECT id, firstName, lastName, pass, home AS municipality, region

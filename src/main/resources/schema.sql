@@ -48,7 +48,7 @@ CREATE TABLE Poll (
     against INT NOT NULL CHECK (against >= 0),
 
     CHECK (level IN ('Municipal', 'Regional', 'National')),
-    CHECK (startDate < endDate)
+    CHECK (startDate <= endDate)
 );
 
 -- one vote per citizen/poll and there is no record of who voted what like the group decided; very safe very secure

@@ -18,12 +18,12 @@ import agile18.demo.model.Records.Citizen;
 import agile18.demo.model.Records.Poll;
 
 @RestController
-public class PollingStationController {
+public class PollingController {
     private final PollingStation ps;
     private final Onboarder ob;
     private final PollBrowser pb;
 
-    public PollingStationController(PollingStation ps, Onboarder ob, PollBrowser pb) {
+    public PollingController(PollingStation ps, Onboarder ob, PollBrowser pb) {
         this.ps = ps;
         this.ob = ob;
         this.pb = pb;
@@ -102,13 +102,11 @@ public class PollingStationController {
     @GetMapping("/municipal-polls")
     public Map<String, Object> onGetMunicipalPolls(@RequestParam String uuid,
     @RequestParam(defaultValue = "Active") String status) {
-        if (!Utils.isOneOf(status, "Active", "Future", "Past")) {
+        if (!Utils.isOneOf(status, "Active", "Future", "Past", "All")) {
             return Map.of(
                     "success", false,
                     "message", "invalid status");
         }
-        if (status.equals("Past"))
-            status = "Finished";
 
         try {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
@@ -130,13 +128,11 @@ public class PollingStationController {
     public Map<String, Object> onGetRegionalPolls(@RequestParam String uuid,
             @RequestParam(defaultValue = "Active") String status) {
 
-        if (!Utils.isOneOf(status, "Active", "Future", "Past")) {
+        if (!Utils.isOneOf(status, "Active", "Future", "Past", "All")) {
             return Map.of(
                     "success", false,
                     "message", "invalid status");
         }
-        if (status.equals("Past"))
-            status = "Finished";
 
         try {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
@@ -157,13 +153,11 @@ public class PollingStationController {
     @GetMapping("/national-polls")
     public Map<String, Object> onGetNationalPolls(@RequestParam String uuid,
             @RequestParam(defaultValue = "Active") String status) {
-        if (!Utils.isOneOf(status, "Active", "Future", "Past")) {
+        if (!Utils.isOneOf(status, "Active", "Future", "Past", "All")) {
             return Map.of(
                     "success", false,
                     "message", "invalid status");
         }
-        if (status.equals("Past"))
-            status = "Finished";
 
         try {
             ob.checkLogin(UUID.fromString(uuid));
