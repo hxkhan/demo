@@ -1,5 +1,8 @@
 package agile18.demo.web;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -101,7 +104,7 @@ public class PollingController {
 
     @GetMapping("/municipal-polls")
     public Map<String, Object> onGetMunicipalPolls(@RequestParam String uuid,
-    @RequestParam(defaultValue = "Active") String status) {
+            @RequestParam(defaultValue = "Active") String status) {
         if (!Utils.isOneOf(status, "Active", "Future", "Past", "All")) {
             return Map.of(
                     "success", false,
@@ -197,6 +200,21 @@ record BodyOfCastVote(int id, String vote) {
 
 record BodyOfCreatePoll(String title, String body, String level, String startDate, String endDate) {
     boolean isValid() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date today = new Date();
+        
+        try {
+            boolean startsBeforeItEnds = sdf.parse(endDate).before(sdf.parse(startDate));
+            boolean startsAndEndsOnTheSameDay = startDate.equals(endDate);
+            boolean startsAtleastTomorrow = today.before(sdf.parse(startDate));
+
+            if (!(startsAtleastTomorrow && (startsBeforeItEnds || startsAndEndsOnTheSameDay))) {
+                return false;
+            }
+        } catch (ParseException e) {
+            return false;
+        }
+
         return !Utils.isEmpty(title, body, level, startDate, endDate) &&
                 (level.equals("Municipal") || level.equals("Regional") || level.equals("National"));
     }
