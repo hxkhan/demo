@@ -10,7 +10,7 @@ import agile18.Utils;
 import agile18.demo.model.LevelEnum;
 import agile18.demo.model.Onboarder;
 import agile18.demo.model.PollBrowser;
-import agile18.demo.model.PollEnum;
+import agile18.demo.model.PollStatusEnum;
 import agile18.demo.model.PollingStation;
 import agile18.demo.model.VoteEnum;
 import agile18.demo.model.Exceptions.*;
@@ -114,7 +114,7 @@ public class PollingStationController {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
-                    "data", pb.getMunPolls(c.home(), PollEnum.valueOf(status)));
+                    "data", pb.getMunPolls(c.home(), PollStatusEnum.valueOf(status)));
         } catch (IllegalArgumentException e) {
             return Map.of(
                     "success", false,
@@ -142,7 +142,7 @@ public class PollingStationController {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
-                    "data", pb.getRegPolls(c.home(), PollEnum.valueOf(status)));
+                    "data", pb.getRegPolls(c.home(), PollStatusEnum.valueOf(status)));
         } catch (IllegalArgumentException e) {
             return Map.of(
                     "success", false,
@@ -169,7 +169,7 @@ public class PollingStationController {
             ob.checkLogin(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
-                    "data", pb.getNatPolls(PollEnum.valueOf(status)));
+                    "data", pb.getNatPolls(PollStatusEnum.valueOf(status)));
         } catch (IllegalArgumentException e) {
             return Map.of(
                     "success", false,

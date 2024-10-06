@@ -1,8 +1,9 @@
 package agile18.demo.model.Database;
 
+import java.util.*;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import java.util.*;
 
 import agile18.Utils;
 import agile18.demo.model.*;
@@ -86,49 +87,64 @@ public class Database {
     }
 
     // --------------------- Polls ---------------------
-    public List<Poll> getAllPolls() {
+    public List<Poll> getAllPolls(PollStatusEnum ps) {
+        String ending = getPollStatus(ps);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+ 
-            "FROM Poll p JOIN Municipality m ON p.home = m.name;";
+            "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + ending + ";";
+        return getPolls(sql);
+    }
+    public List<Poll> getMuniPolls(String m, PollStatusEnum ps){
+        String ending = getPollStatus(ps);
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE home = '" + m + "' AND level = 'Municipal' AND "+ ending +";";
+        return getPolls(sql);
+    }
+    public List<Poll> getRegPolls(String r, PollStatusEnum ps){
+        String ending = getPollStatus(ps);
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE region = '" + r + "' AND level = 'Regional' AND "+ ending +";";
+        return getPolls(sql);
+    }
+    public List<Poll> getNatPolls(PollStatusEnum ps){
+        String ending = getPollStatus(ps);
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE level = 'National' AND " + ending + ";";
+        return getPolls(sql);
+    }
+    public List<Poll> getEligiblePolls(Citizen c, PollStatusEnum ps, LevelFilterEnum l) {
+        String status = getPollStatus(ps);
+        String level = getPollLevel(l);
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against " +
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
+                " AND id NOT IN (SELECT poll FROM Casted WHERE voter = '" + c.id() + "');";
+        return getPolls(sql);
+    }
+    public List<Poll> getVotedPolls(Citizen c, PollStatusEnum ps, LevelFilterEnum l) {
+        String status = getPollStatus(ps);
+        String level = getPollLevel(l);
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against " +
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
+                " AND id IN (SELECT poll FROM Casted WHERE voter = '" + c.id() + "');";
 
-        return jdbc.query(sql, (r, rowNum) -> {
-            return new Poll(
-                r.getInt("id"),
-                r.getString("creator"),
-                new MuniRegion(r.getString("municipality"), r.getString("region")),
-                LevelEnum.valueOf(r.getString("level")),
-                r.getString("title"),
-                r.getString("body"),
-                r.getString("startDate"),
-                r.getString("endDate"),
-                r.getInt("blank"),
-                r.getInt("favor"),
-                r.getInt("against")
-            );
-        });
+        return getPolls(sql);
+    }
+    public List<Poll> getPollsByCreator(Citizen c, PollStatusEnum ps, LevelFilterEnum l){
+        String status = getPollStatus(ps);
+        String level = getPollLevel(l);
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against " +
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
+                " AND creator = '" + c.id() + "';";
+        return getPolls(sql);
     }
 
     public Poll getPollWithID(int id) {
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "+ 
             "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE id = " + id + ";";
 
-        var list = jdbc.query(sql, (r, rowNum) -> {
-            return new Poll(
-                r.getInt("id"),
-                r.getString("creator"),
-                new MuniRegion(r.getString("municipality"), r.getString("region")),
-                LevelEnum.valueOf(r.getString("level")),
-                r.getString("title"),
-                r.getString("body"),
-                r.getString("startDate"),
-                r.getString("endDate"),
-                r.getInt("blank"),
-                r.getInt("favor"),
-                r.getInt("against")
-            );
-        });
+        var list = getPolls(sql);
 
         if (list.isEmpty()) return null;
-        return list.get(0);
+        return list.getFirst();
     }
 
     public int createPoll(Citizen creator, LevelEnum level, String title, String body, String startDate, String endDate) {
@@ -167,6 +183,41 @@ public class Database {
 
         // vote
         jdbc.execute(sql);
+    }
+
+    // Poll Helpers ------------------------
+    private List<Poll> getPolls(String sql){
+        return jdbc.query(sql, (r, rowNum) -> {
+            return new Poll(
+                    r.getInt("id"),
+                    r.getString("creator"),
+                    new MuniRegion(r.getString("municipality"), r.getString("region")),
+                    LevelEnum.valueOf(r.getString("level")),
+                    r.getString("title"),
+                    r.getString("body"),
+                    r.getString("startDate"),
+                    r.getString("endDate"),
+                    r.getInt("blank"),
+                    r.getInt("favor"),
+                    r.getInt("against")
+            );
+        });
+    }
+    private String getPollLevel(LevelFilterEnum l){
+        return switch(l){
+            case All -> "TRUE";
+            case Municipal -> "level = 'Municipal'";
+            case Regional -> "level = 'Regional'";
+            case National -> "level = 'National'";
+        };
+    }
+    private String getPollStatus(PollStatusEnum ps){
+        return switch(ps) {
+            case All -> "TRUE";
+            case Past -> "endDate < CURRENT_TIMESTAMP()";
+            case Active -> "startDate < CURRENT_TIMESTAMP() AND endDate > CURRENT_TIMESTAMP()";
+            case Future -> "startDate > CURRENT_TIMESTAMP()";
+        };
     }
 
 
