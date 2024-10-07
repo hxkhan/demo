@@ -153,9 +153,9 @@ public class Database {
         return list.getFirst();
     }
 
-    public int createPoll(Citizen creator, LevelEnum level, String title, String body, String startDate,
+    public Integer createPoll(Citizen creator, LevelEnum level, String title, String body, String startDate,
             String endDate) {
-        int id = jdbc.queryForObject("SELECT COUNT(*) FROM Poll;", Integer.class);
+        Integer id = jdbc.queryForObject("SELECT COUNT(*) FROM Poll;", Integer.class);
         String values = Utils.sqlValues(id, creator.id(), creator.home().municipality(), level.toString(), title, body,
                 startDate, endDate, 0, 0, 0);
         String sql = "INSERT INTO Poll VALUES (" + values + ");";
@@ -232,8 +232,8 @@ public class Database {
     // implement roles during sat/sun
 
     // NEWS------------------------------
-    public int postNews(String title, String body, String date) {
-        int id = jdbc.queryForObject("SELECT COUNT(*) FROM News;", Integer.class);
+    public Integer postNews(String title, String body, String date) {
+        Integer id = jdbc.queryForObject("SELECT COUNT(*) FROM News;", Integer.class);
 
         String values = Utils.sqlValues(id, title, body, date);
         String sql = "INSERT INTO News VALUES (" + values + ");";
@@ -280,9 +280,9 @@ public class Database {
         }).get(0);
     }
 
-    public boolean isSecretary(String citizenId) {
+    public Boolean isSecretary(String citizenId) {
         String sql = "SELECT EXISTS (SELECT 1 FROM SpecialRole WHERE citizenId = '" + citizenId + "');";
-        return jdbc.queryForObject(sql, boolean.class);
+        return jdbc.queryForObject(sql, Boolean.class);
     }
 
     public void favorNews(int newsId, String citizenId, boolean favorable) {
@@ -291,16 +291,16 @@ public class Database {
         jdbc.execute(sql);
     }
 
-    public boolean hasFavoredNews(int newsId, String citizenId) {
+    public Boolean hasFavoredNews(int newsId, String citizenId) {
         String sql = "SELECT EXISTS (SELECT 1 FROM CastedOpinion WHERE newsId =" + newsId + " AND citizenId = '"
                 + citizenId + "');";
-        return jdbc.queryForObject(sql, boolean.class);
+        return jdbc.queryForObject(sql, Boolean.class);
     }
 
-    public boolean isFavorableNewsFavor(int newsId, String citizenId) {
+    public Boolean isFavorableNewsFavor(int newsId, String citizenId) {
         String sql = "SELECT favorable FROM CastedOpinion WHERE newsId =" + newsId + " AND citizenId = '" + citizenId
                 + "';";
-        return jdbc.queryForObject(sql, boolean.class);
+        return jdbc.queryForObject(sql, Boolean.class);
     }
 
     public void changeNewsFavor(int newsId, String citizenId, boolean favorable) {
