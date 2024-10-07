@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 
 import agile18.demo.model.Database.Database;
 import agile18.demo.model.Exceptions.PollDoesNotExistException;
-import agile18.demo.model.Records.*;
+import agile18.demo.model.Records.Citizen;
+import agile18.demo.model.Records.MuniRegion;
+import agile18.demo.model.Records.Poll;
 
 
 @Service
@@ -25,6 +27,24 @@ public class PollBrowser {
     public List<Poll> getAllPolls(PollStatusEnum ps) {
         return db.getAllPolls(ps);
     }
+
+    //--topics--
+    public List<String> getPollTopics(int id){
+        return db.getPollTopics(id);
+    }
+
+    public List<Poll> getPollsWithTopic(String topic){
+        return db.getPollsWithTopic(topic);
+    }
+
+    public void addTopicToPoll(int id, String topic){
+        db.addTopicToPoll(id, topic);
+    }
+
+    public void removeTopicFromPoll(int id, String topic){
+        db.removeTopicFromPoll(id, topic);
+    }
+    
     // --
 
     public List<Poll> getMunPolls(MuniRegion mr, PollStatusEnum ps) {
