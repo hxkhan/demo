@@ -256,12 +256,36 @@ public class Database {
         });
     }
 
+    public boolean isSecretary(String citizenId) {
+        String sql = "SELECT EXISTS (SELECT 1 FROM SpecialRole WHERE citizenId = '" + citizenId + "');";
+        return jdbc.queryForObject(sql, boolean.class);
+    }
+
     public void favorNews(int newsId, String citizenId, boolean favorable) {
         String values = Utils.sqlValues(newsId, citizenId, favorable);
         String sql = "INSERT INTO CastedOpinion VALUES(" + values + ")";
         jdbc.execute(sql);
     }
 
+    public boolean hasFavoredNews(int newsId, String citizenId) {
+        String sql = "SELECT EXISTS (SELECT 1 FROM CastedOpinion WHERE newsId =" + newsId + " AND citizenId = '" + citizenId + "');";
+        return jdbc.queryForObject(sql, boolean.class);
+    }
+
+    public boolean isFavorableNewsFavor(int newsId, String citizenId) {
+        String sql = "SELECT favorable FROM CastedOpinion WHERE newsId ="+ newsId + " AND citizenId = '" + citizenId + "';";
+        return jdbc.queryForObject(sql, boolean.class);
+    }
+
+    public void changeNewsFavor(int newsId, String citizenId, boolean favorable) {
+        String sql = "UPDATE CastedOpinion SET favorable = " + favorable + " WHERE newsId = " + newsId + " AND citizenId = '" + citizenId + "';";
+        jdbc.execute(sql);
+    }
+
+    public void deleteNewsFavor(int newsId, String citizenId) {
+        String sql = "DELETE FROM CastedOpinion WHERE newsId =" + newsId + " AND citizenId = '" + citizenId + "';";
+        jdbc.execute(sql);
+    }
 
 
 }
