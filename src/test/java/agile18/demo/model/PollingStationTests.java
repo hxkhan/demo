@@ -92,7 +92,7 @@ public class PollingStationTests {
             "DELETE FROM Poll;",
             "DELETE FROM Citizen;",
             "DELETE FROM Municipality;",
-            "DELETE FROM Region WHERE TRUE;"
+            "DELETE FROM Region;"
         );
         for (String s : sql) {
             db.executeHelper(s);
