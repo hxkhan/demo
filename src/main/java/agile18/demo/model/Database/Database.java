@@ -87,16 +87,14 @@ public class Database {
     public List<Poll> getAllPolls(PollStatusEnum ps) {
         String ending = getPollStatus(ps);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
-                +
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + ending + ";";
+                + "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + ending + ";";
         return getPolls(sql);
     }
 
     public List<Poll> getMuniPolls(String m, PollStatusEnum ps) {
         String ending = getPollStatus(ps);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
-                +
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE home = '" + m
+                + "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE home = '" + m
                 + "' AND level = 'Municipal' AND " + ending + ";";
         return getPolls(sql);
     }
@@ -104,8 +102,7 @@ public class Database {
     public List<Poll> getRegPolls(String r, PollStatusEnum ps) {
         String ending = getPollStatus(ps);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
-                +
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE region = '" + r
+                + "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE region = '" + r
                 + "' AND level = 'Regional' AND " + ending + ";";
         return getPolls(sql);
     }
@@ -113,8 +110,7 @@ public class Database {
     public List<Poll> getNatPolls(PollStatusEnum ps) {
         String ending = getPollStatus(ps);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
-                +
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE level = 'National' AND " + ending + ";";
+                + "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE level = 'National' AND " + ending + ";";
         return getPolls(sql);
     }
 
@@ -122,8 +118,7 @@ public class Database {
         String status = getPollStatus(ps);
         String level = getPollLevel(l);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
-                +
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
+                + "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
                 " AND id NOT IN (SELECT poll FROM Casted WHERE voter = '" + c.id() + "');";
         return getPolls(sql);
     }
@@ -132,8 +127,7 @@ public class Database {
         String status = getPollStatus(ps);
         String level = getPollLevel(l);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
-                +
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
+                + "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
                 " AND id IN (SELECT poll FROM Casted WHERE voter = '" + c.id() + "');";
 
         return getPolls(sql);
@@ -143,16 +137,14 @@ public class Database {
         String status = getPollStatus(ps);
         String level = getPollLevel(l);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
-                +
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
+                + "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
                 " AND creator = '" + c.id() + "';";
         return getPolls(sql);
     }
 
     public Poll getPollWithID(int id) {
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
-                +
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE id = " + id + ";";
+                + "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE id = " + id + ";";
 
         var list = getPolls(sql);
 
@@ -276,7 +268,7 @@ public class Database {
                 "FROM News n " +
                 "LEFT JOIN CastedOpinion co ON n.id = co.newsId " +
                 "WHERE n.id = " + newsId + ";";
-                
+
         return jdbc.query(sql, (r, rowNum) -> {
             return new NewsPost(
                     r.getInt("id"),
