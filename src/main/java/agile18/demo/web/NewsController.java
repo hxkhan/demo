@@ -61,6 +61,11 @@ public class NewsController {
     public List<NewsPost> onGetNews() {
         return ns.getAllNews();
     }
+
+    @GetMapping("single-news")
+    public NewsPost onGetSingleNews(@RequestParam int news) {
+        return ns.getSingleNews(news);
+    }
 }
 
 record BodyOfPostNews(String title, String body) {

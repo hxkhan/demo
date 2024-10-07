@@ -33,6 +33,10 @@ public class NewsStation {
         return db.getAllNews();
     }
 
+    public NewsPost getSingleNews(int newsId) {
+        return db.getSingleNews(newsId);
+    }
+
     public void favorNews(int newsId, UUID accessToken, boolean favorable) throws NotLoggedInException {
         String citizenId = ob.checkLogin(accessToken).id();
         if (db.hasFavoredNews(newsId, citizenId) && db.isFavorableNewsFavor(newsId, citizenId) == favorable) {
