@@ -36,15 +36,6 @@ public class PollBrowser {
     public List<Poll> getPollsWithTopic(String topic){
         return db.getPollsWithTopic(topic);
     }
-
-    public void addTopicToPoll(int id, String topic){
-        db.addTopicToPoll(id, topic);
-    }
-
-    public void removeTopicFromPoll(int id, String topic){
-        db.removeTopicFromPoll(id, topic);
-    }
-    
     // --
 
     public List<Poll> getMunPolls(MuniRegion mr, PollStatusEnum ps) {
