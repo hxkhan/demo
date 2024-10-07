@@ -123,21 +123,6 @@
             });
         };
 
-        function voteFavor(id, favorable) {
-            fetch(`/favor-news?uuid=${localStorage.uuid}`, {
-                method: "POST",
-                body: JSON.stringify({
-                    newsId: id,
-                    favorable: favorable
-                }),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            }).then((response) => response.json()).then((data) => {
-                showNews()
-            });
-        }
-
         function showNews() {
             const newsContainer = document.getElementById('news-container')
             newsContainer.innerHTML = ''
@@ -167,6 +152,21 @@
                         newsContainer.appendChild(newsElement);
                     });
                 })
+        }
+
+        function voteFavor(id, favorable) {
+            fetch(`/favor-news?uuid=${localStorage.uuid}`, {
+                method: "POST",
+                body: JSON.stringify({
+                    newsId: id,
+                    favorable: favorable
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((response) => response.json()).then((data) => {
+                showNews()
+            });
         }
 
         showNews()
