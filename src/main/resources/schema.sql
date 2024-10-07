@@ -51,6 +51,13 @@ CREATE TABLE Poll (
     CHECK (startDate <= endDate)
 );
 
+CREATE TABLE PollTopic (
+    id INT REFERENCES Poll(id),
+    topic TEXT NOT NULL,
+
+    PRIMARY KEY (id, topic)
+);
+
 -- one vote per citizen/poll and there is no record of who voted what like the group decided; very safe very secure
 CREATE TABLE Casted (
     voter CHAR(10) REFERENCES Citizen(id),

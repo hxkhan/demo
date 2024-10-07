@@ -146,6 +146,20 @@ public class Database {
         if (list.isEmpty()) return null;
         return list.getFirst();
     }
+    //-- Topics -- NOTE: String kanske ändras till en enum
+    public List<String> getPollTopics(int id){
+      return new ArrayList<>();
+    }
+    public List<Poll> getPollsWithTopic(String topic){
+        return new ArrayList<>();
+    }
+    public void addTopicToPoll(int id, String topic){
+
+    }
+    public void removeTopicFromPoll(int id, String topic){
+
+    }
+    //------------
 
     public int createPoll(Citizen creator, LevelEnum level, String title, String body, String startDate, String endDate) {
         int id = jdbc.queryForObject("SELECT COUNT(*) FROM Poll;", Integer.class);
