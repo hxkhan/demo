@@ -1,0 +1,41 @@
+2024-10-07 15:53:39.590352+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "POLLTOPIC" already exists; SQL statement:
+CREATE TABLE PollTopic (
+    id INT REFERENCES Poll(id),
+    topic TEXT NOT NULL,
+
+    PRIMARY KEY (id, topic)
+) [42101-224]
+2024-10-07 15:55:32.959247+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "POLLTOPIC" already exists; SQL statement:
+CREATE TABLE PollTopic (
+    id INT REFERENCES Poll(id),
+    topic TEXT NOT NULL,
+
+    PRIMARY KEY (id, topic)
+) [42101-224]
+2024-10-07 15:56:47.426507+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "POLLTOPIC" already exists; SQL statement:
+CREATE TABLE PollTopic (
+    id INT REFERENCES Poll(id),
+    topic TEXT NOT NULL,
+
+    PRIMARY KEY (id, topic)
+) [42101-224]
+2024-10-07 15:56:57.568667+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "INSERT INTO PollTopic ([*]0,'Economy')"; expected "identifier"; SQL statement:
+INSERT INTO PollTopic (0,'Economy') [42001-224]
+2024-10-07 15:57:46.294553+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "POLLTOPIC" already exists; SQL statement:
+CREATE TABLE PollTopic (
+    id INT REFERENCES Poll(id),
+    topic TEXT NOT NULL,
+
+    PRIMARY KEY (id, topic)
+) [42101-224]
+2024-10-07 16:01:01.763384+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "REGION" not found (this database is empty); SQL statement:
+INSERT INTO Region VALUES ('Västra Götaland'); [42104-224]
+2024-10-07 16:01:01.771230+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "POLLTOPIC" not found (this database is empty); SQL statement:
+DELETE FROM PollTopic; [42104-224]

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import agile18.demo.model.Database.Database;
 import agile18.demo.model.Exceptions.CitizenHasAlreadyCastedException;
 import agile18.demo.model.Exceptions.NotLoggedInException;
+import agile18.demo.model.Exceptions.PollAlreadyHasTopicException;
 import agile18.demo.model.Exceptions.PollDoesNotExistException;
+import agile18.demo.model.Exceptions.PollDoesNotHaveTopicException;
 import agile18.demo.model.Exceptions.UnAuthorisedToVote;
 import agile18.demo.model.Records.Citizen;
 import agile18.demo.model.Records.Poll;
@@ -35,6 +37,15 @@ public class PollingStation {
     public List<Poll> getAllPolls() {
         return db.getAllPolls(PollStatusEnum.All);
     }
+    public void addTopicToPoll(int pollID, String topic) throws PollAlreadyHasTopicException{
+        if (db.pollTopicExists(pollID,topic)) throw new PollAlreadyHasTopicException();
+        db.addTopicToPoll(pollID, topic);
+    }
+
+    public void removeTopicFromPoll(int pollID, String topic) throws PollDoesNotHaveTopicException{
+        if (!db.pollTopicExists(pollID, topic)) throw new PollDoesNotHaveTopicException();
+        db.removeTopicFromPoll(pollID, topic);
+   }
 
     public void castVote(UUID accessToken, int pollID, VoteEnum vote) 
     throws NotLoggedInException, PollDoesNotExistException, CitizenHasAlreadyCastedException, UnAuthorisedToVote {
