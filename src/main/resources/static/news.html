@@ -144,8 +144,8 @@
                                         <p class="card-text"><small class="text-muted">${element.date}</small></p>
                                     </div>
                                     <div class="mt-3">
-                                        <button type="button" class="btn bg-success rounded text-white" @Click="voteFavor(${element.id}, true)">${element.favorable} Favor</button>
-                                        <button type="button" class="btn bg-danger rounded text-white" @Click="voteFavor(${element.id}, false)">${element.unfavorable} Unfavor</button>
+                                        <button type="button" class="btn bg-success rounded text-white" onClick="voteFavor(${element.id}, true)">${element.favorable} Favor</button>
+                                        <button type="button" class="btn bg-danger rounded text-white" onClick="voteFavor(${element.id}, false)">${element.unfavorable} Unfavor</button>
                                     </div>
                                 </div>
                             </div>
@@ -171,8 +171,8 @@
                                         <p class="card-text"><small class="text-muted">${data.date}</small></p>
                                     </div>
                                     <div class="mt-3">
-                                        <button type="button" class="btn bg-success rounded text-white" @Click="voteFavor(${data.id}, true)">${data.favorable} Favor</button>
-                                        <button type="button" class="btn bg-danger rounded text-white" @Click="voteFavor(${data.id}, false)">${data.unfavorable} Unfavor</button>
+                                        <button type="button" class="btn bg-success rounded text-white" onClick="voteFavor(${data.id}, true)">${data.favorable} Favor</button>
+                                        <button type="button" class="btn bg-danger rounded text-white" onClick="voteFavor(${data.id}, false)">${data.unfavorable} Unfavor</button>
                                     </div>
                                 </div>
                             </div>
