@@ -41,6 +41,13 @@ public class NewsStation {
         return db.getNewsComments(newsId);
     }
 
+    public void postComment(UUID accessToken, int newsId, String comment) throws NotLoggedInException {
+        String citizenId = ob.checkLogin(accessToken).id();
+        LocalDateTime cdt = LocalDateTime.now();
+        String date = cdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        db.postComment(newsId, citizenId, comment, date);
+    }
+
     public void favorNews(int newsId, UUID accessToken, boolean favorable) throws NotLoggedInException {
         String citizenId = ob.checkLogin(accessToken).id();
         if (db.hasFavoredNews(newsId, citizenId) && db.isFavorableNewsFavor(newsId, citizenId) == favorable) {

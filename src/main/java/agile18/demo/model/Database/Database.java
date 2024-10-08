@@ -298,7 +298,7 @@ public class Database {
 
     public void favorNews(int newsId, String citizenId, boolean favorable) {
         String values = Utils.sqlValues(newsId, citizenId, favorable);
-        String sql = "INSERT INTO CastedOpinion VALUES(" + values + ")";
+        String sql = "INSERT INTO CastedOpinion VALUES(" + values + ");";
         jdbc.execute(sql);
     }
 
@@ -322,6 +322,12 @@ public class Database {
 
     public void deleteNewsFavor(int newsId, String citizenId) {
         String sql = "DELETE FROM CastedOpinion WHERE newsId =" + newsId + " AND citizenId = '" + citizenId + "';";
+        jdbc.execute(sql);
+    }
+
+    public void postComment(int newsId, String citizenId, String comment, String date) {
+        String values = Utils.sqlValues(newsId, citizenId, comment, date);
+        String sql = "INSERT INTO NewsComment VALUES(" + values + ");";
         jdbc.execute(sql);
     }
 }

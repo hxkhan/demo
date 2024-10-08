@@ -72,6 +72,19 @@ public class NewsController {
     public List<NewsComment> onGetNewsComments(@RequestParam int news) {
         return ns.getNewsComments(news);
     }
+
+    @PostMapping("/post-comment")
+    public Map<String, Object> onPostComment(@RequestParam String uuid, @RequestBody BodyOfPostComment body) {
+        try {
+            ns.postComment(UUID.fromString(uuid), body.newsId(), body.comment());
+            return Map.of(
+                    "success", true);
+        } catch (NotLoggedInException e) {
+            return Map.of(
+                    "success", false,
+                    "message", "not logged in");
+        }
+    }
 }
 
 record BodyOfPostNews(String title, String body) {
@@ -81,3 +94,5 @@ record BodyOfPostNews(String title, String body) {
 }
 
 record BodyOfFavorNews(int newsId, boolean favorable) {}
+
+record BodyOfPostComment(int newsId, String comment) {}
