@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import agile18.Utils;
 import agile18.demo.model.NewsStation;
 import agile18.demo.model.Exceptions.*;
+import agile18.demo.model.Records.NewsComment;
 import agile18.demo.model.Records.NewsPost;
 
 @RestController
@@ -62,9 +63,14 @@ public class NewsController {
         return ns.getAllNews();
     }
 
-    @GetMapping("single-news")
+    @GetMapping("/single-news")
     public NewsPost onGetSingleNews(@RequestParam int news) {
         return ns.getSingleNews(news);
+    }
+
+    @GetMapping("/news-comments")
+    public List<NewsComment> onGetNewsComments(@RequestParam int news) {
+        return ns.getNewsComments(news);
     }
 }
 

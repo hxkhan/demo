@@ -280,6 +280,17 @@ public class Database {
         }).get(0);
     }
 
+    public List<NewsComment> getNewsComments(int newsId) {
+        String sql = "SELECT CONCAT(c.firstname, ' ', c.lastname) AS name, nc.comment, nc.date FROM NewsComment nc " +
+        "LEFT JOIN Citizen c ON c.id = nc.citizenId WHERE nc.newsId = '" + newsId + "';";
+        return jdbc.query(sql, (r, rowNum) -> {
+            return new NewsComment(
+                r.getString("name"),
+                r.getString("comment"),
+                r.getString("date"));
+        });
+    }
+
     public Boolean isSecretary(String citizenId) {
         String sql = "SELECT EXISTS (SELECT 1 FROM SpecialRole WHERE citizenId = '" + citizenId + "');";
         return jdbc.queryForObject(sql, Boolean.class);

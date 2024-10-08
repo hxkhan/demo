@@ -129,8 +129,8 @@
                     "Content-type": "application/json; charset=UTF-8"
                 }
             }).then((response) => response.json()).then((data) => {
-                bootstrap.Modal.getInstance(document.getElementById('post-news-modal')).hide()
-                showNews()
+                bootstrap.Modal.getInstance(document.getElementById('post-news-modal')).hide();
+                showNews();
             });
         };
 
@@ -159,6 +159,10 @@
                                         <button type="button" class="btn bg-danger rounded text-white" onClick="voteFavor(${element.id}, false)">${element.unfavorable} Unfavor</button>
                                     </div>
                                 </div>
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-primary" onClick="showComments(${element.id})">💬</button>
+                                    <button type="button" class="btn btn-primary" onClick="showComments(${element.id})">Add comment</button>
+                                </div>
                             </div>
                         </div>`;
                         newsContainer.appendChild(newsElement);
@@ -171,23 +175,77 @@
                 method: "GET"
             }).then(response => { return response.json(); })
                 .then(data => {
+                    const element = data
                     const newsElement = document.getElementById(`news-item-${id}`);
                     newsElement.innerHTML = `
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">${data.title}</h5>
-                                <p class="card-text">${data.body}</p>
+                                <h5 class="card-title">${element.title}</h5>
+                                <p class="card-text">${element.body}</p>
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <p class="card-text"><small class="text-muted">${data.date}</small></p>
+                                        <p class="card-text"><small class="text-muted">${element.date}</small></p>
                                     </div>
                                     <div class="mt-3">
-                                        <button type="button" class="btn bg-success rounded text-white" onClick="voteFavor(${data.id}, true)">${data.favorable} Favor</button>
-                                        <button type="button" class="btn bg-danger rounded text-white" onClick="voteFavor(${data.id}, false)">${data.unfavorable} Unfavor</button>
+                                        <button type="button" class="btn bg-success rounded text-white" onClick="voteFavor(${element.id}, true)">${element.favorable} Favor</button>
+                                        <button type="button" class="btn bg-danger rounded text-white" onClick="voteFavor(${element.id}, false)">${element.unfavorable} Unfavor</button>
                                     </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-primary" onClick="showComments(${element.id})">💬</button>
+                                    <button type="button" class="btn btn-primary" onClick="showComments(${element.id})">Add comment</button>
                                 </div>
                             </div>
                         </div>`;
+                })
+        }
+
+        function postComment({ id, body }) {
+            fetch(`/post-comment?uuid=${localStorage.uuid}`, {
+                method: "POST",
+                body: JSON.stringify({
+                    news: id,
+                    body: body
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((response) => response.json()).then((data) => {
+
+            });
+        };
+
+        function showComments(id) {
+            const comments = document.getElementById(`comments-items-${id}`);
+
+            if (comments) {
+                comments.remove();
+                return;
+            }
+
+            fetch(`/news-comments?news=${id}`, {
+                method: "GET"
+            }).then(response => {return response.json(); })
+                .then(data => {
+                    const newsElement = document.getElementById(`news-item-${id}`);
+                    const newComments = document.createElement('div');
+                    newComments.className = 'card';
+                    newComments.id = `comments-items-${id}`;
+                    newsElement.appendChild(newComments);
+                    data.forEach(element => {
+                        const newsComment = document.createElement('div');
+                        newsComment.innerHTML = `
+                            <div class="card-body">
+                                <div class="comment-box border p-3">
+                                    <div class="card-title">
+                                        <span class="text-primary">${element.user}</span>
+                                        <small class="text-muted fs-6 p-3">${element.date}</small>
+                                    </div>
+                                    <div class="p-2">${element.comment}</div>
+                                </div>
+                            </div>`;
+                        newComments.appendChild(newsComment);
+                    })
                 })
         }
 
@@ -202,11 +260,11 @@
                     "Content-type": "application/json; charset=UTF-8"
                 }
             }).then((response) => response.json()).then((data) => {
-                UpdateNewsCard(id)
+                UpdateNewsCard(id);
             });
         }
 
-        showNews()
+        showNews();
     </script>
 </body>
 
