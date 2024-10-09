@@ -31,6 +31,7 @@ INSERT INTO Poll VALUES (5,'0311261111', 'Härryda', 'National', 'Leave EU!', 'K
 -- News
 INSERT INTO News (id, title, body, date) VALUES (0, 'Death of Julius Caesar', 'Our great leader Julius Caesar has been assassinated today on the Ides of March.', '-0044-03-15 00:00:00');
 INSERT INTO News VALUES (1, 'Example News', 'This is an example of how news would look like here', '2024-10-04 19:54:32');
+INSERT INTO NewsComment VALUES(0,'0311261111','lived a legend died a legend','-0044-03-15 17:54:43');
 
 -- Query that will be mapped to the record in Citizen.java
 SELECT id, firstName, lastName, pass, home AS municipality, region

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import agile18.Utils;
 import agile18.demo.model.NewsStation;
 import agile18.demo.model.Exceptions.*;
+import agile18.demo.model.Records.NewsComment;
 import agile18.demo.model.Records.NewsPost;
 
 @RestController
@@ -61,6 +62,29 @@ public class NewsController {
     public List<NewsPost> onGetNews() {
         return ns.getAllNews();
     }
+
+    @GetMapping("/single-news")
+    public NewsPost onGetSingleNews(@RequestParam int news) {
+        return ns.getSingleNews(news);
+    }
+
+    @GetMapping("/news-comments")
+    public List<NewsComment> onGetNewsComments(@RequestParam int news) {
+        return ns.getNewsComments(news);
+    }
+
+    @PostMapping("/post-comment")
+    public Map<String, Object> onPostComment(@RequestParam String uuid, @RequestBody BodyOfPostComment body) {
+        try {
+            ns.postComment(UUID.fromString(uuid), body.newsId(), body.comment());
+            return Map.of(
+                    "success", true);
+        } catch (NotLoggedInException e) {
+            return Map.of(
+                    "success", false,
+                    "message", "not logged in");
+        }
+    }
 }
 
 record BodyOfPostNews(String title, String body) {
@@ -70,3 +94,5 @@ record BodyOfPostNews(String title, String body) {
 }
 
 record BodyOfFavorNews(int newsId, boolean favorable) {}
+
+record BodyOfPostComment(int newsId, String comment) {}

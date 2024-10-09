@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Democracy Now - Create proposal</title>
+    <title>Democracy Now - News</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -18,7 +18,15 @@
 
     <!-- Navigation Script -->
     <script type="module">
-        if (localStorage.uuid) console.log("You are logged in!");
+        if (!localStorage.uuid) window.location.replace("/login.html");
+
+        var response = await(await fetch('/check-login-status?uuid=' + localStorage.uuid)).json();
+        if (response.success == false) {
+            localStorage.clear();
+            window.location.replace("/login.html");
+        } else {
+            localStorage.user = JSON.stringify(response.data);
+        }
     </script>
 
     <!-- Alpine JavaScript -->
@@ -32,8 +40,11 @@
     <header class="rubik">
         <div class="inner">
             <a class="header-title" href="/">Democracy Now</a>
+            <a class="header-link" href="/polls.html">Polls</a>
             <div class="desktop-header-links">
                 <a class="header-link" data-bs-toggle="modal" data-bs-target="#post-news-modal">Post News</a>
+                <a class="header-link header-link2"
+                    onclick="localStorage.clear(); window.location.replace('/login.html');">Logout</a>
             </div>
             <div class="dropdown text-end mobile-header-nav">
                 <a href="#" class="d-block link-body-emphasis text-decoration-none" data-bs-toggle="dropdown"
@@ -118,10 +129,127 @@
                     "Content-type": "application/json; charset=UTF-8"
                 }
             }).then((response) => response.json()).then((data) => {
-                bootstrap.Modal.getInstance(document.getElementById('post-news-modal')).hide()
-                showNews()
+                bootstrap.Modal.getInstance(document.getElementById('post-news-modal')).hide();
+                showNews();
             });
         };
+
+        function showNews() {
+            const newsContainer = document.getElementById('news-container')
+            newsContainer.innerHTML = ''
+            fetch("/news", {
+                method: "GET"
+            }).then(response => { return response.json(); })
+                .then(data => {
+                    data.forEach(element => {
+                        const newsElement = document.createElement('div');
+                        newsElement.className = 'news-item mb-3'
+                        newsElement.id = `news-item-${element.id}`
+                        newsElement.innerHTML = generateCard(element);
+                        newsContainer.appendChild(newsElement);
+                    });
+                })
+        }
+
+        function UpdateNewsCard(id) {
+            fetch(`/single-news?news=${id}`, {
+                method: "GET"
+            }).then(response => { return response.json(); })
+                .then(data => {
+                    const newsElement = document.getElementById(`news-item-${id}`);
+                    newsElement.innerHTML = generateCard(data)
+                })
+        }
+
+        function generateCard(element) {
+            return `    <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">${element.title}</h5>
+                                <p class="card-text">${element.body}</p>
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="card-text"><small class="text-muted fs-6 p-3">${element.date}</small></p>
+                                    </div>
+                                    <div class="d-flex">
+                                        <div class="me-2">
+                                            <button type="button" class="btn btn-primary" onClick="showComments(${element.id})">💬</button>
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#commentModal${element.id}">Comment</button>
+                                        </div>
+                                        <div class="ms-5">
+                                            <button type="button" class="btn bg-success rounded text-white" onClick="voteFavor(${element.id}, true)">${element.favorable} Favor</button>
+                                            <button type="button" class="btn bg-danger rounded text-white" onClick="voteFavor(${element.id}, false)">${element.unfavorable} Unfavor</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" x-data="{ id:'${element.id}', body:'' }" id="commentModal${element.id}" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="commentModalLabel">Add a Comment</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <textarea x-model="body" class="form-control" placeholder="Enter your comment..." rows="3"></textarea>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" @click="postComment($data)">Post Comment</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+        }
+
+        function postComment({ id, body }) {
+            fetch(`/post-comment?uuid=${localStorage.uuid}`, {
+                method: "POST",
+                body: JSON.stringify({
+                    newsId: id,
+                    comment: body
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((response) => response.json()).then((data) => {
+                bootstrap.Modal.getInstance(document.getElementById(`commentModal${id}`)).hide();
+            });
+        };
+
+        function showComments(id) {
+            const comments = document.getElementById(`comments-items-${id}`);
+
+            if (comments) {
+                comments.remove();
+                return;
+            }
+
+            fetch(`/news-comments?news=${id}`, {
+                method: "GET"
+            }).then(response => {return response.json(); })
+                .then(data => {
+                    const newsElement = document.getElementById(`news-item-${id}`);
+                    const newComments = document.createElement('div');
+                    newComments.className = 'card';
+                    newComments.id = `comments-items-${id}`;
+                    newsElement.appendChild(newComments);
+                    data.forEach(element => {
+                        const newsComment = document.createElement('div');
+                        newsComment.innerHTML = `
+                            <div class="card-body">
+                                <div class="comment-box border p-3">
+                                    <div class="card-title">
+                                        <span class="text-primary">${element.user}</span>
+                                        <small class="text-muted p-3">${element.date}</small>
+                                    </div>
+                                    <div class="p-2">${element.comment}</div>
+                                </div>
+                            </div>`;
+                        newComments.appendChild(newsComment);
+                    })
+                })
+        }
 
         function voteFavor(id, favorable) {
             fetch(`/favor-news?uuid=${localStorage.uuid}`, {
@@ -134,42 +262,11 @@
                     "Content-type": "application/json; charset=UTF-8"
                 }
             }).then((response) => response.json()).then((data) => {
-                showNews()
+                UpdateNewsCard(id);
             });
         }
 
-        function showNews() {
-            const newsContainer = document.getElementById('news-container')
-            newsContainer.innerHTML = ''
-            fetch("/news", {
-                method: "GET"
-            }).then(response => { return response.json(); })
-                .then(data => {
-                    data.forEach(element => {
-                        const newsElement = document.createElement('div');
-                        newsElement.className = 'news-item';
-                        newsElement.innerHTML = `
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">${element.title}</h5>
-                                <p class="card-text">${element.body}</p>
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <p class="card-text"><small class="text-muted">${element.date}</small></p>
-                                    </div>
-                                    <div class="mt-3">
-                                        <button type="button" class="btn bg-success rounded text-white" @click="voteFavor(${element.id}, true)">${element.favorable} Favor</button>
-                                        <button type="button" class="btn bg-danger rounded text-white" @click="voteFavor(${element.id}, false)">${element.unfavorable} Unfavor</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
-                        newsContainer.appendChild(newsElement);
-                    });
-                })
-        }
-
-        showNews()
+        showNews();
     </script>
 </body>
 
