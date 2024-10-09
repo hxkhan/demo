@@ -50,14 +50,6 @@ public class PollBrowser {
 
     
     public List<Poll> getPollsByCitizen(Citizen c, PollStatusEnum ps, LevelFilterEnum l) {
-        //List<Poll> allPolls = db.getAllPolls(ps); 
-        //List<Poll> citizenPolls = new ArrayList<>();
-//
-        //for (Poll poll : allPolls) {
-        //    if (poll.creator().equals(c.id()) && isPollDateInRange(poll, ps)) { 
-        //        citizenPolls.add(poll);
-        //    }
-        //}
         return db.getPollsByCreator(c,ps,l);
     }
 
