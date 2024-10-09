@@ -170,14 +170,16 @@
                                     <div>
                                         <p class="card-text"><small class="text-muted">${element.date}</small></p>
                                     </div>
-                                    <div class="mt-3">
-                                        <button type="button" class="btn bg-success rounded text-white" onClick="voteFavor(${element.id}, true)">${element.favorable} Favor</button>
-                                        <button type="button" class="btn bg-danger rounded text-white" onClick="voteFavor(${element.id}, false)">${element.unfavorable} Unfavor</button>
+                                    <div class="d-flex">
+                                        <div class="me-2">
+                                            <button type="button" class="btn btn-primary" onClick="showComments(${element.id})">💬</button>
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#commentModal${element.id}">Comment</button>
+                                        </div>
+                                        <div class="ms-5">
+                                            <button type="button" class="btn bg-success rounded text-white" onClick="voteFavor(${element.id}, true)">${element.favorable} Favor</button>
+                                            <button type="button" class="btn bg-danger rounded text-white" onClick="voteFavor(${element.id}, false)">${element.unfavorable} Unfavor</button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="mt-3">
-                                    <button type="button" class="btn btn-primary" onClick="showComments(${element.id})">💬</button>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#commentModal${element.id}">Add comment</button>
                                 </div>
                             </div>
                         </div>
