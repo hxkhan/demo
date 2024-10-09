@@ -19,7 +19,7 @@ public class PollBrowserTests {
     private Database db;
     @Autowired
     private PollBrowser pb;
-
+    // WARNING: You must change the path inside SqlSetUp class or else tests wont work
     private final SqlSetUp su = new SqlSetUp();
 
     @Test

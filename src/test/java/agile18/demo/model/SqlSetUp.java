@@ -8,7 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 
 public class SqlSetUp {
-    private final String resourcePath = "C:\\Users\\corbe\\agiletry\\src\\main\\resources\\";
+    // Change this to your path or tests using this class wont work
+    private final String resourcePath = "YOUR PATH TO RESOURCE FILE";
 
 
     public SqlSetUp(){}
