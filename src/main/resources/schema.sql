@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS Region CASCADE;
 DROP TABLE IF EXISTS News CASCADE;
 DROP TABLE IF EXISTS CastedOpinion CASCADE;
 DROP TABLE IF EXISTS SpecialRole CASCADE;
-DROP TABLE IF EXISTS NewsComments CASCADE;
+DROP TABLE IF EXISTS NewsComment CASCADE;
 
 -- INIT
 CREATE TABLE Region (
@@ -89,7 +89,7 @@ CREATE TABLE CastedOpinion (
 
 CREATE TABLE SpecialRole (
     citizenId CHAR(10) REFERENCES Citizen(id),
-    Role TEXT NOT NULL CHECK (Role IN ('Press Secretary')) -- Add the rest of the roles later e.g. 'Minister'
+    role TEXT NOT NULL CHECK (role IN ('Press Secretary')) -- Add the rest of the roles later e.g. 'Minister'
 );
 
 CREATE TABLE NewsComment (

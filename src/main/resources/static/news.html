@@ -40,9 +40,9 @@
     <header class="rubik">
         <div class="inner">
             <a class="header-title" href="/">Democracy Now</a>
-            <a class="header-link" href="/polls.html">Polls</a>
             <div class="desktop-header-links">
-                <a class="header-link" data-bs-toggle="modal" data-bs-target="#post-news-modal">Post News</a>
+                <a id="post-news-button" class="header-link" data-bs-toggle="modal" data-bs-target="#post-news-modal">Post News</a>
+                <a class="header-link header-link2" href="/polls.html">Polls</a>
                 <a class="header-link header-link2"
                     onclick="localStorage.clear(); window.location.replace('/login.html');">Logout</a>
             </div>
@@ -229,6 +229,8 @@
                 method: "GET"
             }).then(response => {return response.json(); })
                 .then(data => {
+                    
+                    if (data.length === 0) return
                     const newsElement = document.getElementById(`news-item-${id}`);
                     const newComments = document.createElement('div');
                     newComments.className = 'card';
