@@ -36,6 +36,11 @@ public class PollingStation {
         return db.getAllPolls(PollStatusEnum.All);
     }
 
+    public List<Integer> getAllCastsFor(UUID accessToken) throws NotLoggedInException {
+        Citizen c = ob.checkLogin(accessToken);
+        return db.getAllCastsFor(c);
+    }
+
     public void castVote(UUID accessToken, int pollID, VoteEnum vote) 
     throws NotLoggedInException, PollDoesNotExistException, CitizenHasAlreadyCastedException, UnAuthorisedToVote {
         Citizen voter = ob.checkLogin(accessToken);
