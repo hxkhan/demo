@@ -44,9 +44,8 @@
             <a class="header-title" href="/">Democracy Now</a>
             <div class="desktop-header-links">
                 <a class="header-link" data-bs-toggle="modal" data-bs-target="#create-poll-modal">Create Poll</a>
-                <a class="header-link header-link2" href="/news.html">News</a>
-                <a class="header-link header-link2"
-                    onclick="localStorage.clear(); window.location.replace('/login.html');">Logout</a>
+                <a class="header-link" href="/news.html">News</a>
+                <a class="header-link" onclick="logout()">Logout</a>
             </div>
             <div class="dropdown text-end mobile-header-nav">
                 <a href="#" class="d-block link-body-emphasis text-decoration-none" data-bs-toggle="dropdown"
@@ -60,7 +59,8 @@
                 <ul class="dropdown-menu text-small">
                     <li class="dropdown-item-mobile"><a class="dropdown-item" data-bs-toggle="modal"
                             data-bs-target="#create-poll-modal">Create Poll</a></li>
-                    <!-- <li class="dropdown-item-mobile"><a class="dropdown-item" href="register.html">Register</a></li> -->
+                    <li class="dropdown-item-mobile"><a class="dropdown-item" href="/news.html">News</a></li>
+                    <li class="dropdown-item-mobile"><a class="dropdown-item" onclick="logout()">Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -366,6 +366,11 @@
                     window.location.reload();
                 });
             } console.log("no poll selected...");
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.replace('/login.html');
         }
 
         getPolls("National", "Active");

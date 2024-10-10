@@ -43,8 +43,8 @@
             <div class="desktop-header-links">
                 <a id="post-news-button" class="header-link" data-bs-toggle="modal"
                     data-bs-target="#post-news-modal">Post News</a>
-                <a class="header-link header-link2" href="/polls.html">Polls</a>
-                <a class="header-link header-link2"
+                <a class="header-link" href="/polls.html">Polls</a>
+                <a class="header-link"
                     onclick="localStorage.clear(); window.location.replace('/login.html');">Logout</a>
             </div>
             <div class="dropdown text-end mobile-header-nav">
@@ -57,8 +57,10 @@
                     </svg>
                 </a>
                 <ul class="dropdown-menu text-small">
-                    <li class="dropdown-item-mobile"><a class="dropdown-item" data-bs-toggle="modal"
-                            data-bs-target="#reg-modal">Create Poll</a></li>
+                    <li id="post-news-button-mobile"class="dropdown-item-mobile"><a class="dropdown-item" data-bs-toggle="modal"
+                        data-bs-target="#post-news-modal">Post News</a></li>
+                    <li class="dropdown-item-mobile"><a class="dropdown-item" href="/polls.html">Polls</a></li>
+                    <li class="dropdown-item-mobile"><a class="dropdown-item" onclick="logout()">Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -116,8 +118,8 @@
     </div>
 
     <!-- Create Comment Modal -->
-    <div class="modal fade" x-data="{ body: '' }" id="newCommentModal" tabindex="-1"
-        aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal fade" x-data="{ body: '' }" id="newCommentModal" tabindex="-1" aria-labelledby="commentModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -130,7 +132,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" @click="postComment(body); body='';">Post Comment</button>
+                    <button type="button" class="btn btn-primary" @click="postComment(body); body='';">Post
+                        Comment</button>
                 </div>
             </div>
         </div>
@@ -165,21 +168,21 @@
             newsContainer.innerHTML = ''
             fetch(`/news?uuid=${localStorage.uuid}`, {
                 method: "GET"
-            }).then(response => { return response.json(); })
-                .then(data => {
-                    if (data.success) {
-                        data.news.forEach(element => {
+            }).then((response) => response.json()).then((data) => {
+                if (data.success) {
+                    data.news.forEach(element => {
                         const newsElement = document.createElement('div');
                         newsElement.className = 'news-item mb-3'
                         newsElement.id = `news-item-${element.id}`
                         newsElement.innerHTML = generateCard(element);
                         newsContainer.appendChild(newsElement);
                     });
-                    }
-                    if (!data.isSecretary){
-                        document.getElementById("post-news-button").style.display = 'none';
-                    }
-                })
+                }
+                if (!data.isSecretary) {
+                    document.getElementById("post-news-button").remove();
+                    document.getElementById("post-news-button-mobile").remove();
+                }
+            })
         }
 
         function UpdateNewsCard(id) {
@@ -240,7 +243,7 @@
         }
 
         function newComment(user, date, comment) {
-        return `<div class="card-body">
+            return `<div class="card-body">
                     <div class="comment-box border p-3">
                         <div class="card-title">
                             <span class="text-primary">${user}</span>
