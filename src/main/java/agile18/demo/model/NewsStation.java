@@ -29,6 +29,11 @@ public class NewsStation {
         }
     }
 
+    public boolean isSecretary(UUID accessToken) throws NotLoggedInException {
+        String citizenId = ob.checkLogin(accessToken).id();
+        return db.isSecretary(citizenId);
+    }
+
     public List<NewsPost> getAllNews() {
         return db.getAllNews();
     }

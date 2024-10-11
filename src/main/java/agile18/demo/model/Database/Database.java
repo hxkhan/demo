@@ -228,6 +228,11 @@ public class Database {
         };
     }
 
+    public List<Integer> getAllCastsFor(Citizen voter) {
+        String query = "SELECT poll FROM CASTED where voter = '" + voter.id() + "';";
+        return jdbc.queryForList(query, Integer.class);
+    }
+
     // ROLES
     // implement roles during sat/sun
 

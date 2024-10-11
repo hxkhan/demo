@@ -25,13 +25,11 @@ public class NewsController {
         try {
             ns.favorNews(body.newsId(), UUID.fromString(uuid), body.favorable());
             return Map.of(
-                "success", true);
-        }
-        catch (NotLoggedInException e) {
+                    "success", true);
+        } catch (NotLoggedInException e) {
             return Map.of(
-                "success", false,
-                "message", "Not logged in"
-            );
+                    "success", false,
+                    "message", "Not logged in");
         }
     }
 
@@ -59,8 +57,21 @@ public class NewsController {
     }
 
     @GetMapping("/news")
-    public List<NewsPost> onGetNews() {
-        return ns.getAllNews();
+    public Map<String, Object> onGetNews(@RequestParam String uuid) {
+        try {
+            return Map.of(
+                    "success", true,
+                    "news", ns.getAllNews(),
+                    "isSecretary", ns.isSecretary(UUID.fromString(uuid)));
+        } catch (IllegalArgumentException e) {
+            return Map.of(
+                    "success", false,
+                    "message", "invalid uuid");
+        } catch (NotLoggedInException e) {
+            return Map.of(
+                    "success", false,
+                    "message", "not logged in");
+        }
     }
 
     @GetMapping("/single-news")
@@ -93,6 +104,8 @@ record BodyOfPostNews(String title, String body) {
     }
 }
 
-record BodyOfFavorNews(int newsId, boolean favorable) {}
+record BodyOfFavorNews(int newsId, boolean favorable) {
+}
 
-record BodyOfPostComment(int newsId, String comment) {}
+record BodyOfPostComment(int newsId, String comment) {
+}

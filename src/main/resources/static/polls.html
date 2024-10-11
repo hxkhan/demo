@@ -44,8 +44,8 @@
             <a class="header-title" href="/">Democracy Now</a>
             <div class="desktop-header-links">
                 <a class="header-link" data-bs-toggle="modal" data-bs-target="#create-poll-modal">Create Poll</a>
-                <a class="header-link header-link2"
-                    onclick="localStorage.clear(); window.location.replace('/login.html');">Logout</a>
+                <a class="header-link" href="/news.html">News</a>
+                <a class="header-link" onclick="logout()">Logout</a>
             </div>
             <div class="dropdown text-end mobile-header-nav">
                 <a href="#" class="d-block link-body-emphasis text-decoration-none" data-bs-toggle="dropdown"
@@ -59,7 +59,8 @@
                 <ul class="dropdown-menu text-small">
                     <li class="dropdown-item-mobile"><a class="dropdown-item" data-bs-toggle="modal"
                             data-bs-target="#create-poll-modal">Create Poll</a></li>
-                    <!-- <li class="dropdown-item-mobile"><a class="dropdown-item" href="register.html">Register</a></li> -->
+                    <li class="dropdown-item-mobile"><a class="dropdown-item" href="/news.html">News</a></li>
+                    <li class="dropdown-item-mobile"><a class="dropdown-item" onclick="logout()">Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -147,10 +148,10 @@
                     <canvas id="votesChart" style="width:100%; max-width: 600px; margin: 0 auto;"></canvas>
 
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" @click="votePoll('Against')">Vote No</button>
-                    <button type="button" class="btn btn-primary" @click="votePoll('Blank')">Vote Blank</button>
-                    <button type="button" class="btn btn-success" @click="votePoll('Favor')">Vote Yes</button>
+                <div class="modal-footer" id="voting-buttons">
+                    <button type="button" class="btn btn-danger" onclick="votePoll('Against')">Vote No</button>
+                    <button type="button" class="btn btn-primary" onclick="votePoll('Blank')">Vote Blank</button>
+                    <button type="button" class="btn btn-success" onclick="votePoll('Favor')">Vote Yes</button>
                 </div>
             </div>
         </div>
@@ -204,11 +205,11 @@
     <script>
         startDateInput.min = new Date().toISOString().split("T")[0];
         var polls = [];
+        var casted = [];
         var pollsStatus = "Active";
         var pollsLevel = "National";
 
         function createPoll({ level, title, body, startDate, endDate }) {
-
             fetch(`/create-poll?uuid=${localStorage.uuid}`, {
                 method: "POST",
                 body: JSON.stringify({
@@ -222,8 +223,8 @@
                     "Content-type": "application/json; charset=UTF-8"
                 }
             }).then((response) => response.json()).then((data) => {
-                console.log(data);
                 if (data.success == false) {
+                    console.log(data);
                     return;
                 }
                 window.location.reload();
@@ -236,7 +237,7 @@
             if (level == "Regional") url = "regional-polls";
             if (level == "Municipal") url = "municipal-polls";
             pollsStatus = status;
-            console.log(`sending to /${url}?uuid=${localStorage.uuid}&status=${status}`);
+            //console.log(`sending to /${url}?uuid=${localStorage.uuid}&status=${status}`);
             fetch(`/${url}?uuid=${localStorage.uuid}&status=${status}`, {
                 method: "GET",
                 headers: {
@@ -244,7 +245,8 @@
                 }
             }).then((response) => response.json()).then((body) => {
                 if (body.success == true) {
-                    polls = body.data;
+                    polls = body.polls;
+                    casted = body.casted;
                     populatePageWithPolls();
                 } else console.log(body);
             });
@@ -255,7 +257,12 @@
             for (const index in polls) {
 
                 var poll = polls[index];
-                var pills = `<span class="badge rounded-pill" style="background-color: rgb(0, 104, 161);">Voted</span>`;
+                var pills = "";
+
+                if (casted.includes(poll.id)) {
+                    pills += '<span class="badge rounded-pill" style="background-color: rgb(0, 104, 161);">Voted</span>';
+                }
+
                 var greyText = "";
                 if (pollsStatus == "Past") {
                     greyText = "Ended on: " + poll.endDate;
@@ -299,10 +306,18 @@
                 document.getElementById('view-poll-start-date').value = poll.startDate;
                 document.getElementById('view-poll-end-date').value = poll.endDate;
 
-                if (!(new Date(poll.startDate) > new Date())) {
+                var lastDayHasPassed = new Date() > new Date(poll.endDate);
+                var startsInTheFuture = new Date(poll.startDate) > new Date();
+
+                if (casted.includes(poll.id) || lastDayHasPassed || startsInTheFuture)
+                    document.getElementById('voting-buttons').style.display = 'none';
+                else
+                    document.getElementById('voting-buttons').style.display = 'flex';
+
+                if (!startsInTheFuture && (poll.against != 0 || poll.blank != 0 || poll.favor != 0)) {
                     var xValues = ["Against", "Blank", "Favor"];
-                    var yValues = [10, 25, 5];
-                    //var yValues = [poll.against, poll.blank, poll.favor];
+                    //var yValues = [10, 25, 5];
+                    var yValues = [poll.against, poll.blank, poll.favor];
                     var barColors = [
                         "#db3545",
                         "#0068a1",
@@ -334,8 +349,28 @@
 
         function votePoll(choice) {
             if (selectedPoll != null) {
+                fetch(`/cast-vote?uuid=${localStorage.uuid}`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        id: selectedPoll,
+                        vote: choice
+                    }),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                }).then((response) => response.json()).then((data) => {
+                    if (data.success == false) {
+                        console.log(data);
+                        return;
+                    }
+                    window.location.reload();
+                });
+            } console.log("no poll selected...");
+        }
 
-            }
+        function logout() {
+            localStorage.clear();
+            window.location.replace('/login.html');
         }
 
         getPolls("National", "Active");

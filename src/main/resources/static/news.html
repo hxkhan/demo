@@ -40,10 +40,11 @@
     <header class="rubik">
         <div class="inner">
             <a class="header-title" href="/">Democracy Now</a>
-            <a class="header-link" href="/polls.html">Polls</a>
             <div class="desktop-header-links">
-                <a class="header-link" data-bs-toggle="modal" data-bs-target="#post-news-modal">Post News</a>
-                <a class="header-link header-link2"
+                <a id="post-news-button" class="header-link" data-bs-toggle="modal"
+                    data-bs-target="#post-news-modal">Post News</a>
+                <a class="header-link" href="/polls.html">Polls</a>
+                <a class="header-link"
                     onclick="localStorage.clear(); window.location.replace('/login.html');">Logout</a>
             </div>
             <div class="dropdown text-end mobile-header-nav">
@@ -56,8 +57,10 @@
                     </svg>
                 </a>
                 <ul class="dropdown-menu text-small">
-                    <li class="dropdown-item-mobile"><a class="dropdown-item" data-bs-toggle="modal"
-                            data-bs-target="#reg-modal">Create Poll</a></li>
+                    <li id="post-news-button-mobile"class="dropdown-item-mobile"><a class="dropdown-item" data-bs-toggle="modal"
+                        data-bs-target="#post-news-modal">Post News</a></li>
+                    <li class="dropdown-item-mobile"><a class="dropdown-item" href="/polls.html">Polls</a></li>
+                    <li class="dropdown-item-mobile"><a class="dropdown-item" onclick="logout()">Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -80,7 +83,7 @@
         </div>
     </div>
 
-    <!--Modal-->
+    <!-- Create News Modal -->
     <div class="modal fade" id="post-news-modal" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" x-data="{ title:'', body:'' }">
@@ -114,10 +117,36 @@
         </div>
     </div>
 
+    <!-- Create Comment Modal -->
+    <div class="modal fade" x-data="{ body: '' }" id="newCommentModal" tabindex="-1" aria-labelledby="commentModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commentModalLabel">Add a Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea x-model="body" class="form-control" placeholder="Enter your comment..."
+                        rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="postComment(body); body='';">Post
+                        Comment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div id="news-container" class="mission-box rubik rounded-box-shadow"></div>
 
     <!--Script for display-->
     <script>
+        var selectedId = null
+        var newCommentModal = new bootstrap.Modal(document.getElementById('newCommentModal'));
+
         function postNews({ title, body }) {
             fetch(`/post-news?uuid=${localStorage.uuid}`, {
                 method: "POST",
@@ -137,18 +166,23 @@
         function showNews() {
             const newsContainer = document.getElementById('news-container')
             newsContainer.innerHTML = ''
-            fetch("/news", {
+            fetch(`/news?uuid=${localStorage.uuid}`, {
                 method: "GET"
-            }).then(response => { return response.json(); })
-                .then(data => {
-                    data.forEach(element => {
+            }).then((response) => response.json()).then((data) => {
+                if (data.success) {
+                    data.news.forEach(element => {
                         const newsElement = document.createElement('div');
                         newsElement.className = 'news-item mb-3'
                         newsElement.id = `news-item-${element.id}`
                         newsElement.innerHTML = generateCard(element);
                         newsContainer.appendChild(newsElement);
                     });
-                })
+                }
+                if (!data.isSecretary) {
+                    document.getElementById("post-news-button").remove();
+                    document.getElementById("post-news-button-mobile").remove();
+                }
+            })
         }
 
         function UpdateNewsCard(id) {
@@ -173,7 +207,7 @@
                                     <div class="d-flex">
                                         <div class="me-2">
                                             <button type="button" class="btn btn-primary" onClick="showComments(${element.id})">💬</button>
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#commentModal${element.id}">Comment</button>
+                                            <button type="button" class="btn btn-primary" onClick="openNewCommentModal(${element.id})">Comment</button>
                                         </div>
                                         <div class="ms-5">
                                             <button type="button" class="btn bg-success rounded text-white" onClick="voteFavor(${element.id}, true)">${element.favorable} Favor</button>
@@ -182,40 +216,52 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="modal fade" x-data="{ id:'${element.id}', body:'' }" id="commentModal${element.id}" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="commentModalLabel">Add a Comment</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <textarea x-model="body" class="form-control" placeholder="Enter your comment..." rows="3"></textarea>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-primary" @click="postComment($data)">Post Comment</button>
-                                    </div>
-                                </div>
-                            </div>
                         </div>`;
         }
 
-        function postComment({ id, body }) {
+        function openNewCommentModal(id) {
+            selectedId = id
+            newCommentModal.show()
+        }
+
+        function postComment(body) {
             fetch(`/post-comment?uuid=${localStorage.uuid}`, {
                 method: "POST",
                 body: JSON.stringify({
-                    newsId: id,
+                    newsId: selectedId,
                     comment: body
                 }),
                 headers: {
                     "Content-type": "application/json; charset=UTF-8"
                 }
             }).then((response) => response.json()).then((data) => {
-                bootstrap.Modal.getInstance(document.getElementById(`commentModal${id}`)).hide();
+                newCommentModal.hide()
+                if (document.getElementById(`comments-items-${selectedId}`)) {
+                    addNewComment(selectedId, body)
+                }
             });
-        };
+        }
+
+        function newComment(user, date, comment) {
+            return `<div class="card-body">
+                    <div class="comment-box border p-3">
+                        <div class="card-title">
+                            <span class="text-primary">${user}</span>
+                            <small class="text-muted p-3">${date}</small>
+                        </div>
+                        <div class="p-2">${comment}</div>
+                    </div>
+                </div>`
+        }
+
+        function addNewComment(id, body) {
+            const user = JSON.parse(localStorage.user);
+            const comments = document.getElementById(`comments-items-${id}`);
+            const newsComment = document.createElement('div');
+            const date = new Date();
+            newsComment.innerHTML = newComment(user.firstName + ' ' + user.lastName, date.toISOString().replace('T', ' ').substring(0, 19), body);
+            comments.appendChild(newsComment)
+        }
 
         function showComments(id) {
             const comments = document.getElementById(`comments-items-${id}`);
@@ -227,8 +273,10 @@
 
             fetch(`/news-comments?news=${id}`, {
                 method: "GET"
-            }).then(response => {return response.json(); })
+            }).then(response => { return response.json(); })
                 .then(data => {
+
+                    if (data.length === 0) return
                     const newsElement = document.getElementById(`news-item-${id}`);
                     const newComments = document.createElement('div');
                     newComments.className = 'card';
@@ -236,16 +284,7 @@
                     newsElement.appendChild(newComments);
                     data.forEach(element => {
                         const newsComment = document.createElement('div');
-                        newsComment.innerHTML = `
-                            <div class="card-body">
-                                <div class="comment-box border p-3">
-                                    <div class="card-title">
-                                        <span class="text-primary">${element.user}</span>
-                                        <small class="text-muted p-3">${element.date}</small>
-                                    </div>
-                                    <div class="p-2">${element.comment}</div>
-                                </div>
-                            </div>`;
+                        newsComment.innerHTML = newComment(element.user, element.date, element.comment);
                         newComments.appendChild(newsComment);
                     })
                 })
