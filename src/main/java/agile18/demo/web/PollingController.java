@@ -184,13 +184,12 @@ record BodyOfCreatePoll(String title, String body, LevelEnum level, String start
         Date today = new Date();
 
         try {
-            boolean startsBeforeItEnds = sdf.parse(endDate).before(sdf.parse(startDate));
+            boolean startsBeforeItEnds = sdf.parse(startDate).before(sdf.parse(endDate));
             boolean startsAndEndsOnTheSameDay = startDate.equals(endDate);
             boolean startsAtleastTomorrow = today.before(sdf.parse(startDate));
 
-            if (!(startsAtleastTomorrow && (startsBeforeItEnds || startsAndEndsOnTheSameDay))) {
+            if (!(startsAtleastTomorrow && (startsBeforeItEnds || startsAndEndsOnTheSameDay)))
                 return false;
-            }
         } catch (ParseException e) {
             // invalid dates
             return false;
