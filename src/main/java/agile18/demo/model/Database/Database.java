@@ -115,11 +115,16 @@ public class Database {
     }
 
     public List<Poll> getEligiblePolls(Citizen c, PollStatusEnum ps, LevelFilterEnum l) {
+
         String status = getPollStatus(ps);
         String level = getPollLevel(l);
         String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
-                + "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
-                " AND id NOT IN (SELECT poll FROM Casted WHERE voter = '" + c.id() + "');";
+                +
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE " + status + " AND " + level +
+                " AND id NOT IN (SELECT poll FROM Casted WHERE voter = '" + c.id() + "')" +
+                " AND (level = 'Municipal' AND home = '" + c.home().municipality() + "'" +
+                " OR level = 'Regional' AND region = '" + c.home().region() + "'" +
+                " OR level = 'National');";
         return getPolls(sql);
     }
 
@@ -152,6 +157,36 @@ public class Database {
             return null;
         return list.getFirst();
     }
+
+    // -- Topics -- NOTE: String kanske ändras till en enum
+    public List<String> getPollTopics(int id) {
+        String sql = "SELECT topic FROM PollTopic WHERE id = " + id + ";";
+        return jdbc.query(sql, (rs, rowNum) -> rs.getString("topic"));
+    }
+
+    public List<Poll> getPollsWithTopic(String topic) {
+        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
+                +
+                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE id IN (" +
+                " SELECT id FROM PollTopic WHERE topic = '" + topic + "');";
+        return getPolls(sql);
+    }
+
+    public void addTopicToPoll(int id, String topic) {
+        String sql = "INSERT INTO PollTopic VALUES(" + id + ", '" + topic + "');";
+        jdbc.execute(sql);
+    }
+
+    public void removeTopicFromPoll(int id, String topic) {
+        String sql = "DELETE FROM PollTopic WHERE id = " + id + " AND topic = '" + topic + "';";
+        jdbc.execute(sql);
+    }
+
+    public boolean pollTopicExists(int id, String topic) {
+        String sql = "SELECT 1 FROM PollTopic WHERE id = '" + id + "' AND topic = '" + topic + "';";
+        return !jdbc.queryForList(sql).isEmpty();
+    }
+    // ------------
 
     public Integer createPoll(Citizen creator, LevelEnum level, String title, String body, String startDate,
             String endDate) {
@@ -287,12 +322,12 @@ public class Database {
 
     public List<NewsComment> getNewsComments(int newsId) {
         String sql = "SELECT CONCAT(c.firstname, ' ', c.lastname) AS name, nc.comment, nc.date FROM NewsComment nc " +
-        "LEFT JOIN Citizen c ON c.id = nc.citizenId WHERE nc.newsId = '" + newsId + "';";
+                "LEFT JOIN Citizen c ON c.id = nc.citizenId WHERE nc.newsId = '" + newsId + "';";
         return jdbc.query(sql, (r, rowNum) -> {
             return new NewsComment(
-                r.getString("name"),
-                r.getString("comment"),
-                r.getString("date"));
+                    r.getString("name"),
+                    r.getString("comment"),
+                    r.getString("date"));
         });
     }
 
@@ -311,6 +346,11 @@ public class Database {
         String sql = "SELECT EXISTS (SELECT 1 FROM CastedOpinion WHERE newsId =" + newsId + " AND citizenId = '"
                 + citizenId + "');";
         return jdbc.queryForObject(sql, Boolean.class);
+    }
+
+    // -- FOR TESTING ONLY ---------------------------
+    public void executeHelper(String sql) {
+        jdbc.execute(sql);
     }
 
     public Boolean isFavorableNewsFavor(int newsId, String citizenId) {

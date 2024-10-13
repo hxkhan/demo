@@ -25,6 +25,15 @@ public class PollBrowser {
     public List<Poll> getAllPolls(PollStatusEnum ps) {
         return db.getAllPolls(ps);
     }
+
+    //--topics--
+    public List<String> getPollTopics(int id){
+        return db.getPollTopics(id);
+    }
+
+    public List<Poll> getPollsWithTopic(String topic){
+        return db.getPollsWithTopic(topic);
+    }
     // --
 
     public List<Poll> getMunPolls(MuniRegion mr, PollStatusEnum ps) {
@@ -41,14 +50,6 @@ public class PollBrowser {
 
     
     public List<Poll> getPollsByCitizen(Citizen c, PollStatusEnum ps, LevelFilterEnum l) {
-        //List<Poll> allPolls = db.getAllPolls(ps); 
-        //List<Poll> citizenPolls = new ArrayList<>();
-//
-        //for (Poll poll : allPolls) {
-        //    if (poll.creator().equals(c.id()) && isPollDateInRange(poll, ps)) { 
-        //        citizenPolls.add(poll);
-        //    }
-        //}
         return db.getPollsByCreator(c,ps,l);
     }
 
