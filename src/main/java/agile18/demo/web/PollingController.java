@@ -97,19 +97,14 @@ public class PollingController {
     }
 
     @GetMapping("/municipal-polls")
-    public Map<String, Object> onGetMunicipalPolls(@RequestParam String uuid,
-            @RequestParam(defaultValue = "Active") String status) {
-        if (!Utils.isOneOf(status, "Active", "Future", "Past", "All")) {
-            return Map.of(
-                    "success", false,
-                    "message", "invalid status");
-        }
-
+    public Map<String, Object> onGetMunicipalPolls(@RequestParam String uuid, @RequestParam PollStatusEnum status) {
         try {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
+            List<Integer> casted = ps.getAllCastsFor(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
-                    "data", pb.getMunPolls(c.home(), PollStatusEnum.valueOf(status)));
+                    "polls", pb.getMunPolls(c.home(), status),
+                    "casted", casted);
         } catch (IllegalArgumentException e) {
             return Map.of(
                     "success", false,
@@ -122,20 +117,14 @@ public class PollingController {
     }
 
     @GetMapping("/regional-polls")
-    public Map<String, Object> onGetRegionalPolls(@RequestParam String uuid,
-            @RequestParam(defaultValue = "Active") String status) {
-
-        if (!Utils.isOneOf(status, "Active", "Future", "Past", "All")) {
-            return Map.of(
-                    "success", false,
-                    "message", "invalid status");
-        }
-
+    public Map<String, Object> onGetRegionalPolls(@RequestParam String uuid, @RequestParam PollStatusEnum status) {
         try {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
+            List<Integer> casted = ps.getAllCastsFor(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
-                    "data", pb.getRegPolls(c.home(), PollStatusEnum.valueOf(status)));
+                    "polls", pb.getRegPolls(c.home(), status),
+                    "casted", casted);
         } catch (IllegalArgumentException e) {
             return Map.of(
                     "success", false,
@@ -148,19 +137,13 @@ public class PollingController {
     }
 
     @GetMapping("/national-polls")
-    public Map<String, Object> onGetNationalPolls(@RequestParam String uuid,
-            @RequestParam(defaultValue = "Active") String status) {
-        if (!Utils.isOneOf(status, "Active", "Future", "Past", "All")) {
-            return Map.of(
-                    "success", false,
-                    "message", "invalid status");
-        }
-
+    public Map<String, Object> onGetNationalPolls(@RequestParam String uuid, @RequestParam PollStatusEnum status) {
         try {
-            ob.checkLogin(UUID.fromString(uuid));
+            List<Integer> casted = ps.getAllCastsFor(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
-                    "data", pb.getNatPolls(PollStatusEnum.valueOf(status)));
+                    "polls", pb.getNatPolls(status),
+                    "casted", casted);
         } catch (IllegalArgumentException e) {
             return Map.of(
                     "success", false,
@@ -194,19 +177,19 @@ record BodyOfCastVote(int id, VoteEnum vote) {
 
 record BodyOfCreatePoll(String title, String body, LevelEnum level, String startDate, String endDate) {
     boolean isValid() {
-        if (Utils.isEmpty(title, body, startDate, endDate) || level == null) return false;
+        if (Utils.isEmpty(title, body, startDate, endDate) || level == null)
+            return false;
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date today = new Date();
 
         try {
-            boolean startsBeforeItEnds = sdf.parse(endDate).before(sdf.parse(startDate));
+            boolean startsBeforeItEnds = sdf.parse(startDate).before(sdf.parse(endDate));
             boolean startsAndEndsOnTheSameDay = startDate.equals(endDate);
             boolean startsAtleastTomorrow = today.before(sdf.parse(startDate));
 
-            if (!(startsAtleastTomorrow && (startsBeforeItEnds || startsAndEndsOnTheSameDay))) {
+            if (!(startsAtleastTomorrow && (startsBeforeItEnds || startsAndEndsOnTheSameDay)))
                 return false;
-            }
         } catch (ParseException e) {
             // invalid dates
             return false;

@@ -21,19 +21,49 @@ public class NewsStation {
     }
 
     public void postNews(UUID accessToken, String title, String body) throws NotLoggedInException {
-        ob.checkLogin(accessToken);
-        LocalDateTime cdt = LocalDateTime.now();
-        String date = cdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        db.postNews(title, body, date);
+        String citizenId = ob.checkLogin(accessToken).id();
+        if (db.isSecretary(citizenId)) {
+            LocalDateTime cdt = LocalDateTime.now();
+            String date = cdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            db.postNews(title, body, date);
+        }
+    }
+
+    public boolean isSecretary(UUID accessToken) throws NotLoggedInException {
+        String citizenId = ob.checkLogin(accessToken).id();
+        return db.isSecretary(citizenId);
     }
 
     public List<NewsPost> getAllNews() {
         return db.getAllNews();
     }
 
+    public NewsPost getSingleNews(int newsId) {
+        return db.getSingleNews(newsId);
+    }
+
+    public List<NewsComment> getNewsComments(int newsId) {
+        return db.getNewsComments(newsId);
+    }
+
+    public void postComment(UUID accessToken, int newsId, String comment) throws NotLoggedInException {
+        String citizenId = ob.checkLogin(accessToken).id();
+        LocalDateTime cdt = LocalDateTime.now();
+        String date = cdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        db.postComment(newsId, citizenId, comment, date);
+    }
+
     public void favorNews(int newsId, UUID accessToken, boolean favorable) throws NotLoggedInException {
-        Citizen citizen = ob.checkLogin(accessToken);
-        db.favorNews(newsId, citizen.id(), favorable);
+        String citizenId = ob.checkLogin(accessToken).id();
+        if (db.hasFavoredNews(newsId, citizenId) && db.isFavorableNewsFavor(newsId, citizenId) == favorable) {
+            db.deleteNewsFavor(newsId, citizenId);
+        }
+        else if (db.hasFavoredNews(newsId, citizenId)) {
+            db.changeNewsFavor(newsId, citizenId, favorable);
+        }
+        else {
+            db.favorNews(newsId, citizenId, favorable);
+        }
     }
 
 }

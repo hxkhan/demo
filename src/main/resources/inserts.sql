@@ -29,8 +29,14 @@ INSERT INTO Poll VALUES (4,'9603291111', 'Varberg', 'Regional', 'Redirect pensio
 INSERT INTO Poll VALUES (5,'0311261111', 'Härryda', 'National', 'Leave EU!', 'Keep Sweden Swedish, we make our own decisions about our future! USB C sucks!', '2024-11-01', '2024-11-30', 0, 0, 0);
 
 -- News
-INSERT INTO News (id, title, body, date) VALUES (0, 'Death of Julius Caesar', 'Our great leader Julius Caesar has been assassinated today on the Ides of March.', '-0044-03-15 00:00:00');
+INSERT INTO News (id, title, body, date) VALUES (0, 'Igor Bogdanoff death', 'Lived a great life.', '2022-12-28 12:00:00');
 INSERT INTO News VALUES (1, 'Example News', 'This is an example of how news would look like here', '2024-10-04 19:54:32');
+
+-- NewsComment
+INSERT INTO NewsComment VALUES(0,'0311261111','rip lived a legend','2022-12-29 12:00:00');
+
+-- SpecialRole
+INSERT INTO SpecialRole VALUES('0311261111','Press Secretary');
 
 -- Query that will be mapped to the record in Citizen.java
 SELECT id, firstName, lastName, pass, home AS municipality, region
