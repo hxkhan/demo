@@ -27,12 +27,12 @@ public class PollBrowser {
     }
 
     //--topics--
-    public List<String> getPollTopics(int id){
+    public Topics getPollTopics(int id){
         return db.getPollTopics(id);
     }
 
-    public List<Poll> getPollsWithTopic(String topic){
-        return db.getPollsWithTopic(topic);
+    public Topics getPollsWithTopic(){
+        return db.getPollsWithTopic();
     }
     // --
 

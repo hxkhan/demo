@@ -158,18 +158,19 @@ public class Database {
         return list.getFirst();
     }
 
-    // -- Topics -- NOTE: String kanske ändras till en enum
-    public List<String> getPollTopics(int id) {
-        String sql = "SELECT topic FROM PollTopic WHERE id = " + id + ";";
-        return jdbc.query(sql, (rs, rowNum) -> rs.getString("topic"));
+    public Topics getPollTopics(int id) {
+        String sql = "SELECT id, topic FROM PollTopic WHERE id = " + id + ";";
+        return getTopics(sql);
     }
 
-    public List<Poll> getPollsWithTopic(String topic) {
-        String sql = "SELECT id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against "
-                +
-                "FROM Poll p JOIN Municipality m ON p.home = m.name WHERE id IN (" +
-                " SELECT id FROM PollTopic WHERE topic = '" + topic + "');";
-        return getPolls(sql);
+    public Topics getPollsWithTopic() {
+        String sql = 
+        """
+        SELECT p.id, creator, home AS municipality, region, level, title, body, startDate, endDate, blank, favor, against, topic 
+        FROM Poll p JOIN Municipality m ON p.home = m.name 
+        JOIN PollTopic pt ON p.id = pt.id;
+        """;
+        return getTopics(sql);
     }
 
     public void addTopicToPoll(int id, String topic) {
@@ -243,6 +244,26 @@ public class Database {
                     r.getInt("favor"),
                     r.getInt("against"));
         });
+    }
+    private Topics getTopics(String sql){
+        Topics t = Topics.defaults();
+        System.out.println(sql);
+        List<Map<String, Object>> rows = jdbc.queryForList(sql);
+        for (Map<String,Object> r : rows) {
+            System.out.println(r);
+            System.out.println(r.get("topic"));
+            System.out.println(r.get("id"));
+        
+            switch ((String) r.get("topic")) {
+                case "Economy" -> t.Economy().add((Integer)r.get("id"));
+                case "Climate" -> t.Climate().add((Integer)r.get("id"));
+                case "Healthcare" -> t.Healthcare().add((Integer)r.get("id"));
+                case "Security" -> t.Security().add((Integer)r.get("id"));
+                case "Education" -> t.Education().add((Integer)r.get("id"));
+                default -> {}
+            } 
+        }
+        return t;
     }
 
     private String getPollLevel(LevelFilterEnum l) {
