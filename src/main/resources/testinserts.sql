@@ -39,9 +39,9 @@ INSERT INTO Casted VALUES ('0311261111', 2);
 INSERT INTO Casted VALUES ('0311261111', 5);
 
 -- Topics
-INSERT INTO PollTopic VALUES (1, 'lame');
-INSERT INTO PollTopic VALUES (2, 'cool');
-INSERT INTO PollTopic VALUES (2, 'lame');
+INSERT INTO PollTopic VALUES (1, 'Climate');
+INSERT INTO PollTopic VALUES (2, 'Education');
+INSERT INTO PollTopic VALUES (2, 'Climate');
 
 -- News
 INSERT INTO News (id, title, body, date) VALUES (0, 'Death of Julius Caesar', 'Our great leader Julius Caesar has been assassinated today on the Ides of March.', '-0044-03-15 00:00:00');
