@@ -22,8 +22,6 @@ public class PollingStationTests {
     private Database db;
     @Autowired
     private PollingStation ps;
-    @Autowired
-    private PollBrowser pb;
     
     @Test
     public void testAddTopicToPoll(){

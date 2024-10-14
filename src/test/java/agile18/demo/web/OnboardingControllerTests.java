@@ -1,4 +1,4 @@
-package agile18.demo;
+package agile18.demo.web;
 
 import agile18.demo.model.Database.*;
 import agile18.demo.model.SqlSetUp;

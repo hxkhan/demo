@@ -8,17 +8,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 
 public class SqlSetUp {
-    // Change this to your path or tests using this class wont work
-    private final String resourcePath = "YOUR PATH TO RESOURCE FILE";
+    private final Path resourcePath = Paths.get(System.getProperty("user.dir"),
+                                                    "src","main","resources");
 
-
-    public SqlSetUp(){}
-    static String readFile(String path, Charset encoding)
+    static String readFile(Path path, Charset encoding)
             throws IOException
     {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        byte[] encoded = Files.readAllBytes(path);
         return new String(encoded, encoding);
     }
+
     public void setUpDB(Database db, String insertFile){
         executeSqlFile(db, "schema.sql");
         executeSqlFile(db, insertFile);
@@ -26,14 +25,16 @@ public class SqlSetUp {
     public void setUpDB(Database db){
         executeSqlFile(db, "schema.sql");
     }
+
     public void executeSqlFile(Database db, String File){
-        String sql = resourcePath + File;
+        Path path = Paths.get(resourcePath.toString(), File);
+        String sql;
         try {
-            sql = readFile(sql, StandardCharsets.UTF_8);
+            sql = readFile(path, StandardCharsets.UTF_8);
+            db.executeHelper(sql);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        db.executeHelper(sql);
     }
     public void clearDB(Database db){
         executeSqlFile(db, "clear.sql");

@@ -1,25 +1,28 @@
 package agile18.demo.model;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import agile18.demo.model.Database.Database;
 import agile18.demo.model.Records.*;
 
 
+@TestPropertySource("classpath:testapplication.properties")
 @SpringBootTest
 public class PollBrowserTests {
-    int pollId;
+
     @Autowired
     private Database db;
+
     @Autowired
     private PollBrowser pb;
-    // WARNING: You must change the path inside SqlSetUp class or else tests wont work
+
     private final SqlSetUp su = new SqlSetUp();
 
     @Test
@@ -133,29 +136,31 @@ public class PollBrowserTests {
 
     @Test
     void testGetPollTopics(){
-        List<String> topics = pb.getPollTopics(2);
-        assertEquals(topics.get(0), "cool");
-        assertEquals(topics.get(1), "lame");
-        assertEquals(topics.size(),2);
+        Topics t = pb.getPollTopics(2);
+        System.out.println(t);
+        assertTrue(t.Climate().contains(2) && t.Education().contains(2));
     }
+
     @Test
     void testGetPollWithTopics(){
-        List<Poll> polls = pb.getPollsWithTopic("lame");
-        assertEquals(polls.get(0).id(), 1);
-        assertEquals(polls.get(1).id(), 2);
-        assertEquals(polls.size(),2);
+        Topics t = pb.getPollsWithTopic();
+        List<Integer> expected = List.of(1,2);
+        assertTrue(t.Climate().containsAll(expected));
+        assertTrue(t.Education().contains(2));
+        assertTrue(t.Economy().isEmpty());
+        assertTrue(t.Healthcare().isEmpty());
+        assertTrue(t.Security().isEmpty());
     }
-
-
-
-
+    
     @BeforeEach
     void setUp(){
         su.setUpDB(db, "testinserts.sql");
     }
+
     @AfterEach
     void tearDown(){
         su.clearDB(db);
+        System.out.println("yo");
     }
 
 }
