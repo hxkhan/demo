@@ -106,3 +106,8 @@ CREATE TABLE NewsComment (
     date DATETIME NOT NULL,
     PRIMARY KEY (newsId, citizenId, date)
 );
+
+CREATE TABLE Icon (
+    citizenId CHAR(10) REFERENCES Citizen(id),
+    icon BLOB NOT NULL
+);

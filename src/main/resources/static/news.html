@@ -44,8 +44,14 @@
                 <a id="post-news-button" class="header-link" data-bs-toggle="modal"
                     data-bs-target="#post-news-modal">Post News</a>
                 <a class="header-link" href="/polls.html">Polls</a>
-                <a class="header-link"
-                    onclick="localStorage.clear(); window.location.replace('/login.html');">Logout</a>
+                <a class="header-link" role="button" data-bs-toggle="dropdown">Profile</a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="header-link dropdown-item text-black" onclick="openIconModal()">Change icon</a></li>
+                    <li><a class="header-link dropdown-item text-black"
+                            onclick="localStorage.clear(); window.location.replace('/login.html');">Logout</a></li>
+                </ul>
+
+                <!---->
             </div>
             <div class="dropdown text-end mobile-header-nav">
                 <a href="#" class="d-block link-body-emphasis text-decoration-none" data-bs-toggle="dropdown"
@@ -57,27 +63,38 @@
                     </svg>
                 </a>
                 <ul class="dropdown-menu text-small">
-                    <li id="post-news-button-mobile"class="dropdown-item-mobile"><a class="dropdown-item" data-bs-toggle="modal"
-                        data-bs-target="#post-news-modal">Post News</a></li>
+                    <li id="post-news-button-mobile" class="dropdown-item-mobile"><a class="dropdown-item"
+                            data-bs-toggle="modal" data-bs-target="#post-news-modal">Post News</a></li>
                     <li class="dropdown-item-mobile"><a class="dropdown-item" href="/polls.html">Polls</a></li>
+                    <li class="dropdown-item-mobile"><a class="dropdown-item" onclick="openIconModal()">Change icon</a>
+                    </li>
                     <li class="dropdown-item-mobile"><a class="dropdown-item" onclick="logout()">Logout</a></li>
                 </ul>
             </div>
         </div>
     </header>
 
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- Icon Modal -->
+    <div class="modal fade" id="iconModal" tabindex="-1" aria-labelledby="iconModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Change Icon</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
+                <div class="modal-body">
+                    <form id="uploadForm" action="/post-icon" method="POST" enctype="multipart/form-data">
+                        <input type="file" id="iconInput" onchange="loadIcon();" name="icon" style="display: none;" accept="image/*"/>
+                        <button type="button" class="btn btn-primary"
+                            onclick="document.getElementById('iconInput').click();">Upload Icon</button>
+                        <img id="userIcon" alt="Profile Picture" class="rounded-circle mr-3 bg-white" width="50" height="50"/>
+                        <a id="uploadedIconText" class="text-primary fw-bold"></a>
+                    </form>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-primary" onclick="uploadIcon();">Save changes</button>
+                    
                 </div>
             </div>
         </div>
@@ -144,8 +161,9 @@
 
     <!--Script for display-->
     <script>
-        var selectedId = null
+        var selectedId = null;
         var newCommentModal = new bootstrap.Modal(document.getElementById('newCommentModal'));
+        var iconModal = new bootstrap.Modal(document.getElementById('iconModal'));
 
         function postNews({ title, body }) {
             fetch(`/post-news?uuid=${localStorage.uuid}`, {
@@ -163,6 +181,34 @@
             });
         };
 
+        function loadIcon() {
+            document.getElementById("uploadedIconText").innerHTML = "";
+            const file = document.getElementById('iconInput').files[0];
+            if (!file) return;
+            const newImage = URL.createObjectURL(file);
+            document.getElementById("userIcon").src = newImage;
+        }
+
+        function uploadIcon() {
+            const file = document.getElementById('iconInput').files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append("icon", file);
+            const newImage = URL.createObjectURL(file);
+            document.getElementById("userIcon").src = newImage;
+            console.log("you uploaded your icon.")
+
+            fetch(`/post-icon?uuid=${localStorage.uuid}`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success === true) document.getElementById("uploadedIconText").innerHTML = "success";
+                    else document.getElementById("uploadedIconText").innerHTML = "failed";
+                });
+        }
+
         function showNews() {
             const newsContainer = document.getElementById('news-container')
             newsContainer.innerHTML = ''
@@ -172,8 +218,8 @@
                 if (data.success) {
                     data.news.forEach(element => {
                         const newsElement = document.createElement('div');
-                        newsElement.className = 'news-item mb-3'
-                        newsElement.id = `news-item-${element.id}`
+                        newsElement.className = 'news-item mb-3';
+                        newsElement.id = `news-item-${element.id}`;
                         newsElement.innerHTML = generateCard(element);
                         newsContainer.appendChild(newsElement);
                     });
@@ -191,7 +237,7 @@
             }).then(response => { return response.json(); })
                 .then(data => {
                     const newsElement = document.getElementById(`news-item-${id}`);
-                    newsElement.innerHTML = generateCard(data)
+                    newsElement.innerHTML = generateCard(data);
                 })
         }
 
@@ -220,8 +266,12 @@
         }
 
         function openNewCommentModal(id) {
-            selectedId = id
-            newCommentModal.show()
+            selectedId = id;
+            newCommentModal.show();
+        }
+
+        function openIconModal() {
+            iconModal.show();
         }
 
         function postComment(body) {
@@ -235,23 +285,28 @@
                     "Content-type": "application/json; charset=UTF-8"
                 }
             }).then((response) => response.json()).then((data) => {
-                newCommentModal.hide()
+                newCommentModal.hide();
                 if (document.getElementById(`comments-items-${selectedId}`)) {
-                    addNewComment(selectedId, body)
+                    addNewComment(selectedId, body);
                 }
             });
         }
 
-        function newComment(user, date, comment) {
+        function newComment(user, date, comment, icon) {
+            if (icon === null || icon === "null") icon = "https://icons.iconarchive.com/icons/bootstrap/bootstrap/512/Bootstrap-person-circle-icon.png";
+            else icon = "data:image/png;base64," + icon;
             return `<div class="card-body">
-                    <div class="comment-box border p-3">
-                        <div class="card-title">
-                            <span class="text-primary">${user}</span>
-                            <small class="text-muted p-3">${date}</small>
+                        <div class="comment-box border p-3 d-flex align-items-start">
+                            <img src=${icon} alt="Profile Picture" class="rounded-circle mr-3" width="50" height="50"/>
+                            <div>
+                                <div class="card-title d-flex align-items-center">
+                                    <span class="text-primary ms-3">${user}</span>
+                                    <small class="text-muted p-2">${date}</small>
+                                </div>
+                                <div class="p-2">${comment}</div>
+                            </div>
                         </div>
-                        <div class="p-2">${comment}</div>
-                    </div>
-                </div>`
+                    </div>`;
         }
 
         function addNewComment(id, body) {
@@ -259,8 +314,8 @@
             const comments = document.getElementById(`comments-items-${id}`);
             const newsComment = document.createElement('div');
             const date = new Date();
-            newsComment.innerHTML = newComment(user.firstName + ' ' + user.lastName, date.toISOString().replace('T', ' ').substring(0, 19), body);
-            comments.appendChild(newsComment)
+            newsComment.innerHTML = newComment(user.firstName + ' ' + user.lastName, date.toISOString().replace('T', ' ').substring(0, 19), body, localStorage.icon);
+            comments.appendChild(newsComment);
         }
 
         function showComments(id) {
@@ -284,7 +339,7 @@
                     newsElement.appendChild(newComments);
                     data.forEach(element => {
                         const newsComment = document.createElement('div');
-                        newsComment.innerHTML = newComment(element.user, element.date, element.comment);
+                        newsComment.innerHTML = newComment(element.user, element.date, element.comment, element.icon);
                         newComments.appendChild(newsComment);
                     })
                 })
@@ -304,6 +359,17 @@
                 UpdateNewsCard(id);
             });
         }
+
+        fetch(`/get-icon?uuid=${localStorage.uuid}`, {
+                method: "GET"
+            }).then(response => response.json())
+                .then(data => {
+                    var icon;
+                    localStorage.icon = data.data;
+                    if (localStorage.icon === "null") icon = "https://icons.iconarchive.com/icons/bootstrap/bootstrap/512/Bootstrap-person-circle-icon.png";
+                    else icon = "data:image/png;base64," + localStorage.icon;
+                    document.getElementById("userIcon").src = icon;
+                })
 
         showNews();
     </script>
