@@ -321,13 +321,14 @@ public class Database {
     }
 
     public List<NewsComment> getNewsComments(int newsId) {
-        String sql = "SELECT CONCAT(c.firstname, ' ', c.lastname) AS name, nc.comment, nc.date FROM NewsComment nc " +
-                "LEFT JOIN Citizen c ON c.id = nc.citizenId WHERE nc.newsId = '" + newsId + "';";
+        String sql = "SELECT CONCAT(c.firstname, ' ', c.lastname) AS name, nc.comment, nc.date, i.icon FROM NewsComment nc " +
+                "LEFT JOIN Citizen c ON c.id = nc.citizenId LEFT JOIN Icon i ON i.citizenId = c.id WHERE nc.newsId = '" + newsId + "';";
         return jdbc.query(sql, (r, rowNum) -> {
             return new NewsComment(
                     r.getString("name"),
                     r.getString("comment"),
-                    r.getString("date"));
+                    r.getString("date"),
+                    r.getString("icon"));
         });
     }
 
@@ -375,4 +376,26 @@ public class Database {
         String sql = "INSERT INTO NewsComment VALUES(" + values + ");";
         jdbc.execute(sql);
     }
+    
+    // ICON SETTINGS -----------------------------------
+    public void postIcon(String citizenId, String icon) {
+        String sql = "INSERT INTO Icon VALUES(" + Utils.sqlValues(citizenId, icon) + ");";
+        jdbc.execute(sql);
+    }
+
+    public void deleteIcon(String citizenId) {
+        String sql = "DELETE FROM Icon WHERE citizenId = '" + citizenId + "';";
+        jdbc.execute(sql);
+    }
+
+    public String getIcon(String citizenId) {
+        String sql = "SELECT icon FROM Icon WHERE citizenId = '" + citizenId + "';";
+        return jdbc.queryForObject(sql, String.class);
+    }
+
+    public Boolean hasIcon(String citizenId) {
+        String sql = "SELECT EXISTS (SELECT 1 FROM Icon WHERE citizenId = " + citizenId + ");";
+        return jdbc.queryForObject(sql, Boolean.class);
+    }
+
 }

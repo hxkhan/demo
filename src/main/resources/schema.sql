@@ -95,7 +95,7 @@ CREATE TABLE CastedOpinion (
 );
 
 CREATE TABLE SpecialRole (
-    citizenId CHAR(10) REFERENCES Citizen(id),
+    citizenId CHAR(10) PRIMARY KEY REFERENCES Citizen(id),
     role TEXT NOT NULL CHECK (role IN ('Press Secretary')) -- Add the rest of the roles later e.g. 'Minister'
 );
 
@@ -105,4 +105,9 @@ CREATE TABLE NewsComment (
     comment TEXT NOT NULL,
     date DATETIME NOT NULL,
     PRIMARY KEY (newsId, citizenId, date)
+);
+
+CREATE TABLE Icon (
+    citizenId CHAR(10) PRIMARY KEY REFERENCES Citizen(id),
+    icon BLOB NOT NULL
 );
