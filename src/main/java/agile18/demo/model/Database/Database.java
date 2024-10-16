@@ -247,13 +247,9 @@ public class Database {
     }
     private Topics getTopics(String sql){
         Topics t = Topics.defaults();
-        System.out.println(sql);
+
         List<Map<String, Object>> rows = jdbc.queryForList(sql);
         for (Map<String,Object> r : rows) {
-            System.out.println(r);
-            System.out.println(r.get("topic"));
-            System.out.println(r.get("id"));
-        
             switch ((String) r.get("topic")) {
                 case "Economy" -> t.Economy().add((Integer)r.get("id"));
                 case "Climate" -> t.Climate().add((Integer)r.get("id"));
