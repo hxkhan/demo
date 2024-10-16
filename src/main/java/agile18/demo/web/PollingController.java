@@ -139,6 +139,7 @@ public class PollingController {
     @GetMapping("/national-polls")
     public Map<String, Object> onGetNationalPolls(@RequestParam String uuid, @RequestParam PollStatusEnum status) {
         try {
+            ob.checkLogin(UUID.fromString(uuid)); // la till för att kolla UUID
             List<Integer> casted = ps.getAllCastsFor(UUID.fromString(uuid));
             return Map.of(
                     "success", true,
