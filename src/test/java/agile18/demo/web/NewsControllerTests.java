@@ -233,6 +233,7 @@ public class NewsControllerTests {
     void onGetNewsInvalidBody() throws Exception{
         assertTrue(false);
     }
+    
     @Test
     void onGetSingleNewsPass() throws Exception{
         NewsPost ns1 = ns.getSingleNews(1); 
