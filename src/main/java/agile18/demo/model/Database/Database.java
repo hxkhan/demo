@@ -230,7 +230,7 @@ public class Database {
 
     // Poll Helpers ------------------------
     private List<Poll> getPolls(String sql) {
-        return jdbc.query(sql, (r, rowNum) -> {
+        List<Poll> polls = jdbc.query(sql, (r, rowNum) -> {
             return new Poll(
                     r.getInt("id"),
                     r.getString("creator"),
@@ -242,10 +242,36 @@ public class Database {
                     r.getString("endDate"),
                     r.getInt("blank"),
                     r.getInt("favor"),
-                    r.getInt("against"));
+                    r.getInt("against"),
+                    null
+                    );
         });
+
+        // Attach topics to each poll
+        var topic = getPollsWithTopic();
+        for (int i = 0; i < polls.size(); i++) {
+            Poll poll = polls.get(i); 
+
+            List<String> topics = new ArrayList<String>();
+            for (int id : topic.Economy()) {
+                if (poll.id() == id) {
+                    topics.add("Economy");
+                    break;
+                }
+            }
+            for (int id : topic.Climate()) {
+                if (poll.id() == id) {
+                    topics.add("Climate");
+                    break;
+                }
+            }
+
+            polls.set(i, poll.withTopics(topics));
+        }
+
+        return polls;
     }
-    private Topics getTopics(String sql){
+    private Topics getTopics(String sql) {
         Topics t = Topics.defaults();
 
         List<Map<String, Object>> rows = jdbc.queryForList(sql);

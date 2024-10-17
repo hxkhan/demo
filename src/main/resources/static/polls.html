@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Democracy Now - Create proposal</title>
+    <title>Democracy Now</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -87,7 +87,7 @@
                     <!-- title input -->
                     <label class="form-label">Title</label>
                     <div class="form-group mb-4">
-                        <input type="text" x-model="title" class="form-control" placeholder="A very good">
+                        <input type="text" x-model="title" class="form-control" placeholder="This will be the title">
                     </div>
 
                     <!-- body input -->
@@ -157,20 +157,57 @@
         </div>
     </div>
 
+    <!-- [this.economyCheckbox, this.climateCheckbox, this.healthcareCheckbox, this.securityCheckbox, this.educationCheckbox] -->
+
     <!-- Polls -->
-    <div class="polls-list sft rounded-box-shadow" x-data="{ status: 'Active', level: 'National' }">
+    <div class="polls-list sft rounded-box-shadow"
+        x-data="{ status: 'Active', level: 'National', economyCheckbox: false, climateCheckbox: false, healthcareCheckbox:false, securityCheckbox: false, educationCheckbox: false,
+    filterByTopics() { populatePageWithPolls([this.economyCheckbox, this.climateCheckbox, this.healthcareCheckbox, this.securityCheckbox, this.educationCheckbox]) }}">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-3">Polls</h2>
             <div class="d-flex gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">Topics</button>
+                    <div class="dropdown-menu">
+                        <div style="margin-left: 10px;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" x-model="economyCheckbox"
+                                    @change="filterByTopics()">
+                                <label class="form-check-label">Economy</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" x-model="climateCheckbox"
+                                    @change="filterByTopics()">
+                                <label class="form-check-label">Climate</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" x-model="healthcareCheckbox"
+                                    @change="filterByTopics()">
+                                <label class="form-check-label">Healthcare</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" x-model="securityCheckbox"
+                                    @change="filterByTopics()">
+                                <label class="form-check-label">Security</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" x-model="educationCheckbox"
+                                    @change="filterByTopics()">
+                                <label class="form-check-label">Education</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <select class="form-select mb-3" style="width: 110px;" x-model="status"
-                    @change="getPolls(level, status);">
+                    @change="getPolls(level, status)">
                     <option>Active</option>
                     <option>Past</option>
                     <option>Future</option>
                     <option>All</option>
                 </select>
                 <select class="form-select mb-3" style="width: 140px;" x-model="level"
-                    @change="getPolls(level, status);">
+                    @change="getPolls(level, status)">
                     <option>National</option>
                     <option>Regional</option>
                     <option>Municipal</option>
@@ -250,16 +287,35 @@
             });
         }
 
-        function populatePageWithPolls() {
-            pollsList.innerHTML = "";
-            for (const index in polls) {
+        function populatePageWithPolls(topics) {
+            var filterNeeded = topics != undefined && topics.some(v => v == true)
 
-                var poll = polls[index];
+            var currentPolls = polls;
+            if (filterNeeded) {
+                var stringTopics = [];
+                if (topics[0]) stringTopics.push("Economy");
+                if (topics[1]) stringTopics.push("Climate");
+                if (topics[2]) stringTopics.push("Healthcare");
+                if (topics[3]) stringTopics.push("Security");
+                if (topics[4]) stringTopics.push("Education");
+                currentPolls = currentPolls.filter(poll => poll.topics.some(topic => stringTopics.includes(topic)));
+            }
+
+            pollsList.innerHTML = "";
+            for (const index in currentPolls) {
+
+                var poll = currentPolls[index];
                 var pills = "";
 
                 if (casted.includes(poll.id)) {
                     pills += '<span class="badge rounded-pill" style="background-color: rgb(0, 104, 161);">Voted</span>';
                 }
+
+                for (var topic of poll.topics) {
+                    pills += `<span class="badge rounded-pill text-bg-success">${topic}</span>`;
+                }
+
+                if (poll.topics.length == 0) pills += `<span class="badge rounded-pill text-bg-warning">No Topic</span>`;
 
                 var greyText = "";
                 if (pollsStatus == "Past") {

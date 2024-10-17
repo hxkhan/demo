@@ -19,6 +19,7 @@ import agile18.demo.model.VoteEnum;
 import agile18.demo.model.Exceptions.*;
 import agile18.demo.model.Records.Citizen;
 import agile18.demo.model.Records.Poll;
+import agile18.demo.model.Records.Topics;
 
 @RestController
 public class PollingController {
@@ -101,9 +102,11 @@ public class PollingController {
         try {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
             List<Integer> casted = ps.getAllCastsFor(UUID.fromString(uuid));
+            List<Poll> polls = pb.getMunPolls(c.home(), status);
+
             return Map.of(
                     "success", true,
-                    "polls", pb.getMunPolls(c.home(), status),
+                    "polls", polls,
                     "casted", casted);
         } catch (IllegalArgumentException e) {
             return Map.of(
@@ -121,9 +124,11 @@ public class PollingController {
         try {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
             List<Integer> casted = ps.getAllCastsFor(UUID.fromString(uuid));
+            List<Poll> polls = pb.getRegPolls(c.home(), status);
+
             return Map.of(
                     "success", true,
-                    "polls", pb.getRegPolls(c.home(), status),
+                    "polls", polls,
                     "casted", casted);
         } catch (IllegalArgumentException e) {
             return Map.of(
@@ -139,11 +144,13 @@ public class PollingController {
     @GetMapping("/national-polls")
     public Map<String, Object> onGetNationalPolls(@RequestParam String uuid, @RequestParam PollStatusEnum status) {
         try {
-            ob.checkLogin(UUID.fromString(uuid)); // la till för att kolla UUID
+            ob.checkLogin(UUID.fromString(uuid));
             List<Integer> casted = ps.getAllCastsFor(UUID.fromString(uuid));
+            List<Poll> polls = pb.getNatPolls(status);
+
             return Map.of(
                     "success", true,
-                    "polls", pb.getNatPolls(status),
+                    "polls", polls,
                     "casted", casted);
         } catch (IllegalArgumentException e) {
             return Map.of(
@@ -168,12 +175,20 @@ public class PollingController {
                     "message", "poll does not exist");
         }
     }
+
+    @GetMapping("/topics")
+    public Topics onGetTopics() {
+        return pb.getPollsWithTopic();
+    }
 }
 
 record BodyOfCastVote(int id, VoteEnum vote) {
     boolean isValid() {
         return vote != null;
     }
+}
+
+record BodyOfTopics(boolean Economy, boolean Climate, boolean Healthcare, boolean Security, boolean Education) {
 }
 
 record BodyOfCreatePoll(String title, String body, LevelEnum level, String startDate, String endDate) {

@@ -25,8 +25,9 @@ INSERT INTO Poll VALUES (2,'0311261111', 'Härryda', 'Regional', 'Prohibit Alcoh
 INSERT INTO Poll VALUES (3,'0305251111', 'Trollhättan', 'National', 'Invade Denmark!', 'Take back what is ours!', '2024-10-01', '2024-10-31', 0, 0, 0);
 
 -- Future Polls
-INSERT INTO Poll VALUES (4,'9603291111', 'Varberg', 'Regional', 'Redirect pension fund!', 'I think we should redirect our VGR pension fund to stock options on the oil market!', '2024-10-21', '2024-10-25', 0, 0, 0);
-INSERT INTO Poll VALUES (5,'0311261111', 'Härryda', 'National', 'Leave EU!', 'Keep Sweden Swedish, we make our own decisions about our future! USB C sucks!', '2024-11-01', '2024-11-30', 0, 0, 0);
+INSERT INTO Poll VALUES (4, '9603291111', 'Varberg', 'Regional', 'Redirect pension fund!', 'I think we should redirect our VGR pension fund to stock options on the oil market!', '2024-10-21', '2024-10-25', 0, 0, 0);
+INSERT INTO Poll VALUES (5, '0311261111', 'Härryda', 'National', 'Leave EU!', 'Keep Sweden Swedish, we make our own decisions about our future! USB C sucks!', '2024-11-01', '2024-11-30', 0, 0, 0);
+INSERT INTO PollTopic VALUES (5, 'Economy');
 
 -- News
 INSERT INTO News (id, title, body, date) VALUES (0, 'Igor Bogdanoff death', 'Lived a great life.', '2022-12-28 12:00:00');
