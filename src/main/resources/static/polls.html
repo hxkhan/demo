@@ -69,7 +69,8 @@
     <!--Create Modal-->
     <div class="modal fade" id="create-poll-modal" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content sft" x-data="{ title:'', body:'', level: '', startDate:'', endDate:'' }"
+            <div class="modal-content sft"
+                x-data="{ title:'', body:'', level: '', startDate:'', endDate:'', topics: [] }"
                 x-init="$watch('startDate', value => endDateInput.min = startDate.split('T')[0])">
                 <div class="modal-header">
                     <h5 class="modal-title">Create Poll</h5>
@@ -103,6 +104,28 @@
                     <label class="form-label">End Date</label>
                     <input class="form-control mb-4" type="date" id="endDateInput" x-model="endDate"
                         :disabled="startDate == ''">
+
+                    <label class="form-label">Choose Topics</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" @change="$el.checked? topics.push('Economy') : topics = topics.filter(t => t != 'Economy')">
+                        <label class="form-check-label">Economy</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" @change="$el.checked? topics.push('Climate') : topics = topics.filter(t => t != 'Climate')">
+                        <label class="form-check-label" >Climate</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" @change="$el.checked? topics.push('Healthcare') : topics = topics.filter(t => t != 'Healthcare')">
+                        <label class="form-check-label">Healthcare</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" @change="$el.checked? topics.push('Security') : topics = topics.filter(t => t != 'Security')">
+                        <label class="form-check-label">Security</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" @change="$el.checked? topics.push('Education') : topics = topics.filter(t => t != 'Education')">
+                        <label class="form-check-label">Education</label>
+                    </div>
 
                 </div>
                 <div class="modal-footer">
@@ -246,7 +269,8 @@
         var pollsStatus = "Active";
         var pollsLevel = "National";
 
-        function createPoll({ level, title, body, startDate, endDate }) {
+        function createPoll({ level, title, body, startDate, endDate, topics}) {
+            console.log(topics)
             fetch(`/create-poll?uuid=${localStorage.uuid}`, {
                 method: "POST",
                 body: JSON.stringify({
@@ -254,7 +278,8 @@
                     body: body,
                     level: level,
                     startDate: startDate,
-                    endDate: endDate
+                    endDate: endDate,
+                    topics: topics,
                 }),
                 headers: {
                     "Content-type": "application/json; charset=UTF-8"

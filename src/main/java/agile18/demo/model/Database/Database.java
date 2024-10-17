@@ -265,6 +265,24 @@ public class Database {
                     break;
                 }
             }
+            for (int id : topic.Healthcare()) {
+                if (poll.id() == id) {
+                    topics.add("Healthcare");
+                    break;
+                }
+            }
+            for (int id : topic.Security()) {
+                if (poll.id() == id) {
+                    topics.add("Security");
+                    break;
+                }
+            }
+            for (int id : topic.Education()) {
+                if (poll.id() == id) {
+                    topics.add("Education");
+                    break;
+                }
+            }
 
             polls.set(i, poll.withTopics(topics));
         }
