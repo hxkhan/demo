@@ -26,6 +26,7 @@ public class NewsController {
     @PostMapping("/favor-news")
     public Map<String, Object> onFavorNews(@RequestParam String uuid, @RequestBody BodyOfFavorNews body) {
         try {
+            System.out.println("favor:" + body.favorable() + "; id:" + body.newsId());
             ns.favorNews(body.newsId(), UUID.fromString(uuid), body.favorable());
             return Map.of(
                     "success", true);
@@ -141,6 +142,9 @@ record BodyOfPostNews(String title, String body) {
 }
 
 record BodyOfFavorNews(int newsId, boolean favorable) {
+    boolean isValid() {
+       return true;// return newsId != null && favorable != null
+    }
 }
 
 record BodyOfPostComment(int newsId, String comment) {
