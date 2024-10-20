@@ -25,9 +25,9 @@ public class PollingStation {
         this.ob = ob;
     }
 
-    public void createPoll(UUID accessToken, String title, String body, LevelEnum level, String startDate, String endDate) throws NotLoggedInException {
+    public Integer createPoll(UUID accessToken, String title, String body, LevelEnum level, String startDate, String endDate) throws NotLoggedInException {
         Citizen creator = ob.checkLogin(accessToken);
-        db.createPoll(creator, level, title, body, startDate, endDate);
+        return db.createPoll(creator, level, title, body, startDate, endDate);
     }
 
     public Poll getPollWithID(int id) throws PollDoesNotExistException {

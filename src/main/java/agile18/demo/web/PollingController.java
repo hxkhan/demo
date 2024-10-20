@@ -16,20 +16,24 @@ import agile18.demo.model.PollBrowser;
 import agile18.demo.model.PollStatusEnum;
 import agile18.demo.model.PollingStation;
 import agile18.demo.model.VoteEnum;
+import agile18.demo.model.Database.Database;
 import agile18.demo.model.Exceptions.*;
 import agile18.demo.model.Records.Citizen;
 import agile18.demo.model.Records.Poll;
+import agile18.demo.model.Records.Topics;
 
 @RestController
 public class PollingController {
     private final PollingStation ps;
     private final Onboarder ob;
     private final PollBrowser pb;
+    private final Database db;
 
-    public PollingController(PollingStation ps, Onboarder ob, PollBrowser pb) {
+    public PollingController(PollingStation ps, Onboarder ob, PollBrowser pb, Database db) {
         this.ps = ps;
         this.ob = ob;
         this.pb = pb;
+        this.db = db;
     }
 
     @PostMapping("/create-poll")
@@ -41,8 +45,13 @@ public class PollingController {
         }
 
         try {
-            ps.createPoll(UUID.fromString(uuid), body.title(), body.body(), body.level(), body.startDate(),
+            int id = ps.createPoll(UUID.fromString(uuid), body.title(), body.body(), body.level(), body.startDate(),
                     body.endDate());
+        
+            for (String topic : body.topics()) {
+                db.addTopicToPoll(id, topic);
+                System.out.println("ADDED: "+ topic);
+            }
             return Map.of(
                     "success", true);
         } catch (IllegalArgumentException e) {
@@ -101,9 +110,11 @@ public class PollingController {
         try {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
             List<Integer> casted = ps.getAllCastsFor(UUID.fromString(uuid));
+            List<Poll> polls = pb.getMunPolls(c.home(), status);
+
             return Map.of(
                     "success", true,
-                    "polls", pb.getMunPolls(c.home(), status),
+                    "polls", polls,
                     "casted", casted);
         } catch (IllegalArgumentException e) {
             return Map.of(
@@ -121,9 +132,11 @@ public class PollingController {
         try {
             Citizen c = ob.checkLogin(UUID.fromString(uuid));
             List<Integer> casted = ps.getAllCastsFor(UUID.fromString(uuid));
+            List<Poll> polls = pb.getRegPolls(c.home(), status);
+
             return Map.of(
                     "success", true,
-                    "polls", pb.getRegPolls(c.home(), status),
+                    "polls", polls,
                     "casted", casted);
         } catch (IllegalArgumentException e) {
             return Map.of(
@@ -139,11 +152,13 @@ public class PollingController {
     @GetMapping("/national-polls")
     public Map<String, Object> onGetNationalPolls(@RequestParam String uuid, @RequestParam PollStatusEnum status) {
         try {
-            ob.checkLogin(UUID.fromString(uuid)); // la till för att kolla UUID
+            ob.checkLogin(UUID.fromString(uuid));
             List<Integer> casted = ps.getAllCastsFor(UUID.fromString(uuid));
+            List<Poll> polls = pb.getNatPolls(status);
+
             return Map.of(
                     "success", true,
-                    "polls", pb.getNatPolls(status),
+                    "polls", polls,
                     "casted", casted);
         } catch (IllegalArgumentException e) {
             return Map.of(
@@ -168,6 +183,11 @@ public class PollingController {
                     "message", "poll does not exist");
         }
     }
+
+    @GetMapping("/topics")
+    public Topics onGetTopics() {
+        return pb.getPollsWithTopic();
+    }
 }
 
 record BodyOfCastVote(int id, VoteEnum vote) {
@@ -176,7 +196,7 @@ record BodyOfCastVote(int id, VoteEnum vote) {
     }
 }
 
-record BodyOfCreatePoll(String title, String body, LevelEnum level, String startDate, String endDate) {
+record BodyOfCreatePoll(String title, String body, LevelEnum level, String startDate, String endDate, List<String> topics) {
     boolean isValid() {
         if (Utils.isEmpty(title, body, startDate, endDate) || level == null)
             return false;

@@ -32,7 +32,7 @@ public class PollBrowserTests {
         List<Poll> test = pb.getMunPolls(göteVgöta,PollStatusEnum.All);
         Poll poll = new Poll(0, "0305251111",new MuniRegion("Trollhättan","Västra Götaland"),
                 LevelEnum.Municipal, "Tear down MÅG", "Valid argument tbh!",
-                "2024-09-01", "2024-09-07",0, 0, 0);
+                "2024-09-01", "2024-09-07",0, 0, 0, null);
         List<Poll> expected = Arrays.asList(poll);
         assertEquals(expected,test);
 	}
@@ -43,7 +43,7 @@ public class PollBrowserTests {
         List<Poll> test = pb.getRegPolls(varbergVHalland, PollStatusEnum.All);
         Poll poll = new Poll(4, "9603291111",varbergVHalland,
                 LevelEnum.Regional, "Redirect pension fund!", "I think we should redirect our VGR pension fund to stock options on the oil market!",
-                "2025-10-21", "2025-10-25",0, 0, 0);
+                "2025-10-21", "2025-10-25",0, 0, 0, null);
         List<Poll> expected = Arrays.asList(poll);
         assertEquals(expected,test);
 
@@ -55,7 +55,7 @@ public class PollBrowserTests {
         List<Poll> test = pb.getNatPolls(PollStatusEnum.Future);
         Poll poll = new Poll(5, "0311261111",varbergVHalland,
                 LevelEnum.National, "Leave EU!", "Keep Sweden Swedish, we make our own decisions about our future! USB C sucks!",
-                "2025-11-01", "2025-11-30",0, 0, 0);
+                "2025-11-01", "2025-11-30",0, 0, 0, null);
         List<Poll> expected = Arrays.asList(poll);
         assertEquals(expected,test);
 	}

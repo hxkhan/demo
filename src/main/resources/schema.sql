@@ -61,6 +61,7 @@ CREATE TABLE PollTopic (
     id INT REFERENCES Poll(id),
     topic TEXT NOT NULL,
 
+    CHECK (topic IN ('Economy', 'Climate', 'Healthcare', 'Security', 'Education')),
     PRIMARY KEY (id, topic)
 );
 
