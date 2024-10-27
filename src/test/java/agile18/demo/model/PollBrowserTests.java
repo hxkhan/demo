@@ -137,7 +137,6 @@ public class PollBrowserTests {
     @Test
     void testGetPollTopics(){
         Topics t = pb.getPollTopics(2);
-        System.out.println(t);
         assertTrue(t.Climate().contains(2) && t.Education().contains(2));
     }
 
@@ -160,7 +159,6 @@ public class PollBrowserTests {
     @AfterEach
     void tearDown(){
         su.clearDB(db);
-        System.out.println("yo");
     }
 
 }

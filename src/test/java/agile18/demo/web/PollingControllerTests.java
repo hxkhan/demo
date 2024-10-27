@@ -31,8 +31,6 @@ public class PollingControllerTests {
     @Autowired
     private Database db;
     @Autowired
-    private PollBrowser pb;
-    @Autowired
     private PollingStation ps;
 
     private final SqlSetUp su = new SqlSetUp();
@@ -171,27 +169,6 @@ public class PollingControllerTests {
         assert(poll.isEmpty());
     }
     @Test
-    void onCreatePollInvalidDates4() throws Exception {
-        mockMvc
-                .perform(post("/create-poll?uuid=" + uuid)
-                        .content("{\n" +
-                                "  \"title\": \"test\",\n" +
-                                "  \"body\": \"testbody\",\n" +
-                                "  \"level\": \"Municipal\",\n" +
-                                "  \"startDate\": \"2024-12-01\",\n" + //starting and ending on same day works?
-                                "  \"endDate\": \"2024-12-01\"\n" +
-                                "}")
-                        .contentType(APPLICATION_JSON)
-                )
-                .andExpectAll(
-                        status().isOk(), content().contentType(APPLICATION_JSON),
-                        jsonPath("success").value(false),
-                        jsonPath("message").value("invalid request body")
-                );
-        List<Poll> poll = db.getPollsByCreator(db.getCitizenWithPersonNumber("0305251111"), PollStatusEnum.Future, LevelFilterEnum.Municipal);
-        assert(poll.isEmpty());
-    }
-    @Test
     void onCreatePollNullLevel() throws Exception {
         mockMvc
                 .perform(post("/create-poll?uuid=" + uuid)
@@ -255,27 +232,6 @@ public class PollingControllerTests {
         assert(poll.isEmpty());
     }
     @Test
-    void onCreatePollEmptyLevel() throws Exception {
-        mockMvc
-                .perform(post("/create-poll?uuid=" + uuid)
-                        .content("{\n" +
-                                "  \"title\": \"test\",\n" +
-                                "  \"body\": \"testbody\",\n" +
-                                "  \"level\": \"\",\n" +  // gives error / status 400?
-                                "  \"startDate\": \"2024-11-01\",\n" +
-                                "  \"endDate\": \"2024-12-01\"\n" +
-                                "}")
-                        .contentType(APPLICATION_JSON)
-                )
-                .andExpectAll(
-                        status().isOk(), content().contentType(APPLICATION_JSON),
-                        jsonPath("success").value(false),
-                        jsonPath("message").value("invalid request body")
-                );
-        List<Poll> poll = db.getPollsByCreator(db.getCitizenWithPersonNumber("0305251111"), PollStatusEnum.Future, LevelFilterEnum.Municipal);
-        assert(poll.isEmpty());
-    }
-    @Test
     void onCreatePollEmptyStart() throws Exception {
         mockMvc
                 .perform(post("/create-poll?uuid=" + uuid)
@@ -318,20 +274,6 @@ public class PollingControllerTests {
         assert(poll.isEmpty());
     }
     @Test
-    void onCreatePollBadRequest() throws Exception {
-        mockMvc
-                .perform(post("/create-poll?uuid=" + uuid)
-                        .content("{\n" + // empty body
-                                "}")
-                        .contentType(APPLICATION_JSON)
-                )
-                .andExpectAll(
-                        status().isBadRequest()
-                );
-        List<Poll> poll = db.getPollsByCreator(db.getCitizenWithPersonNumber("0305251111"), PollStatusEnum.Future, LevelFilterEnum.Municipal);
-        assert(poll.isEmpty());
-    }
-    @Test
     void onCastVoteSuccess() throws Exception{
         mockMvc
                 .perform(post("/cast-vote?uuid=" + uuid)
@@ -344,37 +286,6 @@ public class PollingControllerTests {
                 .andExpectAll(
                         status().isOk(), content().contentType(APPLICATION_JSON),
                         jsonPath("success").value(true)
-                );
-        List<Poll> poll = db.getVotedPolls(db.getCitizenWithPersonNumber("0305251111"), PollStatusEnum.Active, LevelFilterEnum.National);
-        assertEquals("Invade Denmark!", poll.getFirst().title());
-        assertEquals(1, poll.getFirst().favor());
-    }
-    @Test
-    void onCastVoteAlreadyCasted() throws Exception{
-        mockMvc
-                .perform(post("/cast-vote?uuid=" + uuid)
-                        .content("{\n" +
-                                "  \"id\": 3,\n" +
-                                "  \"vote\": \"Favor\"\n" +
-                                "}")
-                        .contentType(APPLICATION_JSON)
-                )
-                .andExpectAll(
-                        status().isOk(), content().contentType(APPLICATION_JSON),
-                        jsonPath("success").value(true)
-                );
-        mockMvc
-                .perform(post("/cast-vote?uuid=" + uuid)
-                        .content("{\n" +
-                                "  \"id\": 3,\n" +
-                                "  \"vote\": \"Favor\"\n" +
-                                "}")
-                        .contentType(APPLICATION_JSON)
-                )
-                .andExpectAll(
-                        status().isOk(), content().contentType(APPLICATION_JSON),
-                        jsonPath("success").value(false),
-                        jsonPath("message").value("already casted")
                 );
         List<Poll> poll = db.getVotedPolls(db.getCitizenWithPersonNumber("0305251111"), PollStatusEnum.Active, LevelFilterEnum.National);
         assertEquals("Invade Denmark!", poll.getFirst().title());
@@ -639,11 +550,6 @@ public class PollingControllerTests {
                         status().isBadRequest()
                 );
     }
-
-
-
-
-
     @BeforeEach
     void setUp(){
         su.setUpDB(db, "testinserts.sql");

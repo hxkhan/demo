@@ -26,6 +26,7 @@ public class NewsController {
     @PostMapping("/favor-news")
     public Map<String, Object> onFavorNews(@RequestParam String uuid, @RequestBody BodyOfFavorNews body) {
         try {
+
             ns.favorNews(body.newsId(), UUID.fromString(uuid), body.favorable());
             return Map.of(
                     "success", true);
